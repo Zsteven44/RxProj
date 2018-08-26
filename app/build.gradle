@@ -1,0 +1,89 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.zsteven44.android.myrxjavaproject"
+        minSdkVersion 24
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+
+ext{
+    supportlib_version = '26.1.0'
+    butterknife_version = '8.8.1'
+    constraintlayout_version = '1.1.2'
+    rxandroid_version = '2.1.0'
+    rxjava_version= '2.2.1'
+    leakcanary_version = '1.6.1'
+    stetho_version = '1.5.0'
+    timber_version = '4.7.1'
+    junit_version = '4.12'
+    espresso_version = '3.0.2'
+    retrofit_version = '2.4.0'
+    dagger_version = '2.7'
+    picasso_version = '2.71828'
+    gson_version = '2.8.2'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "com.android.support:appcompat-v7:$supportlib_version"
+    implementation "com.android.support:design:$supportlib_version"
+    implementation "com.android.support:support-v4:$supportlib_version"
+    implementation "com.android.support:recyclerview-v7:$supportlib_version"
+    implementation "com.android.support:cardview-v7:$supportlib_version"
+    implementation "com.android.support.constraint:constraint-layout:$constraintlayout_version"
+
+    // Rx Java/Android
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+
+    // Retrofit + gson
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+
+    // Dagger 2.0
+    implementation "com.google.dagger:dagger:$dagger_version"
+    annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+
+    // Butterknife
+    implementation "com.jakewharton:butterknife:$butterknife_version"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterknife_version"
+
+    // LeakCanary
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary_version"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanary_version"
+    debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakcanary_version"
+
+    // Stetho
+    implementation "com.facebook.stetho:stetho:$stetho_version"
+
+    // Timber
+    implementation "com.jakewharton.timber:timber:$timber_version"
+
+    // Picasso
+    implementation "com.squareup.picasso:picasso:$picasso_version"
+
+
+    testImplementation "junit:junit:$junit_version"
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
+}

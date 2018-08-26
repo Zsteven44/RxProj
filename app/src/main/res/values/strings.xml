@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyRxJavaProject</string>
+    <string name="installed_apps_fragment_title">Installed Applications</string>
+    <string name="imgur_fragment_title">Imgur Search</string>
+    <string name="menu_item_imgur_search">Imgur Search</string>
+    <string name="menu_item_installed_applications">Installed Applications</string>
+    <string name="search_hint">Search for...</string>
+</resources>
