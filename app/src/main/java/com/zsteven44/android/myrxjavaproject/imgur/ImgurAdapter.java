@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.zsteven44.android.myrxjavaproject.R;
 
@@ -60,7 +61,11 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         String imageLink = null;
         if (item instanceof ImgurGallery) {
             if (((ImgurGallery) item).getCover() == null) {
-                imageLink = "";
+                if (!((ImgurGallery) item).getIsAlbum()) {
+                    imageLink = item.getLink();
+                } else {
+                    imageLink = "";
+                }
                 Timber.d("Item is ImgurGallery with NULL cover link: %s", imageLink);
             } else {
                 imageLink = "https://i.imgur.com/"
@@ -83,7 +88,17 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
             Picasso.get()
                     .load(imageLink)
                     .resize(450, 450)
-                    .into(holder.image);
+                    .into(holder.image, new Callback(){
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Timber.e("Picasso image Error: %s", e);
+                        }
+                    });
         }
     }
 
