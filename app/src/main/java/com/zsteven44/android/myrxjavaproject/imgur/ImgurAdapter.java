@@ -59,21 +59,32 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         Timber.d(item.toString());
         String imageLink = null;
         if (item instanceof ImgurGallery) {
-            imageLink = "https://i.imgur.com/"
-                    .concat(((ImgurGallery) item)
-                            .getCover())
-                    .concat(".jpg");
-            Timber.d("Item is ImgurGallery with link: %s", imageLink);
+            if (((ImgurGallery) item).getCover() == null) {
+                imageLink = "";
+                Timber.d("Item is ImgurGallery with NULL cover link: %s", imageLink);
+            } else {
+                imageLink = "https://i.imgur.com/"
+                        .concat(((ImgurGallery) item)
+                                .getCover())
+                        .concat(".jpg");
+                Timber.d("Item is ImgurGallery with cover link: %s", imageLink);
+            }
+
         } else if (item instanceof ImgurImage){
-            imageLink = item.getLink();
             Timber.d("Item is ImgurImage with link: %s", ((ImgurImage) item).getLink());
         }
-        Picasso.get()
-                .load(imageLink)
-                .resize(450,450)
-                .into(holder.image);
-
-        
+//        if (imageLink != null && !imageLink.isEmpty()) {
+        if (imageLink.isEmpty() || imageLink == null){
+            Picasso.get()
+                    .load(R.drawable.ic_launcher_foreground)
+                    .resize(450, 450)
+                    .into(holder.image);
+        } else {
+            Picasso.get()
+                    .load(imageLink)
+                    .resize(450, 450)
+                    .into(holder.image);
+        }
     }
 
     @Override

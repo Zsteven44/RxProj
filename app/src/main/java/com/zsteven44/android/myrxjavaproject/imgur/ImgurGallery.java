@@ -29,5 +29,12 @@ public class ImgurGallery extends ImgurItem {
         this.images = images;
     }
 
-
+    @Override
+    public String toString() {
+        return "ImgurGallery{" +
+                "cover='" + cover + '\'' +
+                ", images=" + images +
+                super.toString()+
+                '}';
+    }
 }

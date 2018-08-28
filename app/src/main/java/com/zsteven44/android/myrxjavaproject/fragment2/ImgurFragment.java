@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.jakewharton.rxbinding2.view.RxView;
 import com.zsteven44.android.myrxjavaproject.R;
@@ -37,8 +38,11 @@ public class ImgurFragment extends Fragment {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    @BindView(R.id.search_text)
+    @BindView(R.id.search_button)
     Button searchButton;
+
+    @BindView(R.id.search_text)
+    EditText searchText;
 
     private Unbinder unbinder;
     private ImgurAdapter<ImgurGallery> adapter;
@@ -70,15 +74,24 @@ public class ImgurFragment extends Fragment {
         disposables
                 .add(RxView
                         .clicks(searchButton)
-                        .subscribe(aVoid ->
-                                Timber.d("SearchButton 'RxView.clicks' registered.")));
-        loadGalleries();
+                        .subscribe((aVoid) ->
+                        {
+                            Timber.d("SearchButton 'RxView.clicks' registered.");
+                            loadGalleries("top",
+                                    "day",
+                                    searchText.getText().toString(),
+                                    1);
+                        }));
+
 
     }
 
-    private void loadGalleries() {
+    private void loadGalleries(@NonNull final String searchType,
+                               @NonNull final String searchWindow,
+                               @NonNull final String searchTerm,
+                               final int resultsPage) {
         Timber.d("Running loadGalleries...");
-        Observable<ImgurGalleryList> imgurObservable = doSearchGalleries("top","day","cat");
+        Observable<ImgurGalleryList> imgurObservable = doSearchGalleries(searchType,searchWindow,searchTerm, resultsPage);
         disposables.add(imgurObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -104,16 +117,14 @@ public class ImgurFragment extends Fragment {
 
     public Observable<ImgurGalleryList> doSearchGalleries(@NonNull final String sort,
                                                         @NonNull final String window,
-                                                        @Nullable final String search) {
+                                                        @Nullable final String search,
+                                                        final int resultsPage) {
 
-        Timber.d("Running doSearchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'", sort, window, search);
-        /*
-            Option 1: Using Service Generator to house retrofit calls, recommended
-            method from https://futurestud.io
-        */
+        Timber.d("Running doSearchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s", sort, window, search,resultsPage);
+
         ServiceGenerator.changeApiBaseUrl(IMGUR_API_BASE_URL);
         ImgurService service = ServiceGenerator.createService(ImgurService.class);
-        Observable<ImgurGalleryList> call = service.getSearchGallery(sort, window, 1, search);
+        Observable<ImgurGalleryList> call = service.getSearchGallery(sort, window, resultsPage, search);
         return call;
     }
 
