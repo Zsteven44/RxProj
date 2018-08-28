@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.jakewharton.rxbinding2.view.RxView;
 import com.zsteven44.android.myrxjavaproject.R;
 import com.zsteven44.android.myrxjavaproject.imgur.ImgurAdapter;
 import com.zsteven44.android.myrxjavaproject.imgur.ImgurGallery;
@@ -23,6 +25,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -34,9 +37,12 @@ public class ImgurFragment extends Fragment {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
+    @BindView(R.id.search_text)
+    Button searchButton;
+
     private Unbinder unbinder;
     private ImgurAdapter<ImgurGallery> adapter;
-    private DisposableObserver<ImgurGalleryList> disposable;
+    private CompositeDisposable disposables;
     public ImgurFragment() {
     }
 
@@ -60,13 +66,20 @@ public class ImgurFragment extends Fragment {
         adapter = new ImgurAdapter<ImgurGallery>(new ArrayList<ImgurGallery>(),
                 R.layout.row_layout_imgur);
         recyclerView.setAdapter(adapter);
+        disposables= new CompositeDisposable();
+        disposables
+                .add(RxView
+                        .clicks(searchButton)
+                        .subscribe(aVoid ->
+                                Timber.d("SearchButton 'RxView.clicks' registered.")));
         loadGalleries();
+
     }
 
     private void loadGalleries() {
         Timber.d("Running loadGalleries...");
         Observable<ImgurGalleryList> imgurObservable = doSearchGalleries("top","day","cat");
-        disposable = imgurObservable
+        disposables.add(imgurObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<ImgurGalleryList>() {
@@ -86,7 +99,7 @@ public class ImgurFragment extends Fragment {
                     public void onComplete() {
                         Timber.d("Running imgurObservable 'onComplete'.");
                     }
-                });
+                }));
     }
 
     public Observable<ImgurGalleryList> doSearchGalleries(@NonNull final String sort,
@@ -113,8 +126,8 @@ public class ImgurFragment extends Fragment {
     @Override
     public void onDestroy() {
         unbinder.unbind();
-        if (this.disposable != null && !this.disposable.isDisposed()) {
-            this.disposable.dispose();
+        if (this.disposables != null && !this.disposables.isDisposed()) {
+            this.disposables.dispose();
         }
         super.onDestroy();
     }
