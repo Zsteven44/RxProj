@@ -49,12 +49,12 @@ dependencies {
     implementation "com.android.support:cardview-v7:$supportlib_version"
     implementation "com.android.support.constraint:constraint-layout:$constraintlayout_version"
 
-    // Rx Java/Android
+    // Rx Java/Android/Binding
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
 
-    // Retrofit + gson
+    // Retrofit + Gson
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"

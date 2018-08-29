@@ -74,7 +74,7 @@ public class ImgurFragment extends Fragment {
         disposables
                 .add(RxView
                         .clicks(searchButton)
-                        .subscribe((aVoid) ->
+                        .subscribe(aVoid ->
                         {
                             Timber.d("SearchButton 'RxView.clicks' registered.");
                             loadGalleries("top",
@@ -121,7 +121,6 @@ public class ImgurFragment extends Fragment {
                                                         final int resultsPage) {
 
         Timber.d("Running doSearchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s", sort, window, search,resultsPage);
-
         ServiceGenerator.changeApiBaseUrl(IMGUR_API_BASE_URL);
         ImgurService service = ServiceGenerator.createService(ImgurService.class);
         Observable<ImgurGalleryList> call = service.getSearchGallery(sort, window, resultsPage, search);
