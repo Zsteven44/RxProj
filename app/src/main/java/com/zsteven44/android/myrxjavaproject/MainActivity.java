@@ -11,8 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
-import com.zsteven44.android.myrxjavaproject.fragment1.InstalledAppsFragment;
-import com.zsteven44.android.myrxjavaproject.fragment2.ImgurFragment;
+import com.zsteven44.android.myrxjavaproject.imgurfragment.ImgurFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.nav_item_1:
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.frame_layout, new InstalledAppsFragment())
+                        .replace(R.id.frame_layout, new ImgurFragment())
                         .commit();
                 main_toolbar.setTitle(R.string.installed_apps_fragment_title);
                 break;
