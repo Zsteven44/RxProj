@@ -8,8 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 import com.zsteven44.android.myrxjavaproject.R;
 
 import java.util.ArrayList;
@@ -57,13 +56,11 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
     @Override
     public void onBindViewHolder(@NonNull final ImgurViewHolder holder,
                                  final int position) {
-        Timber.d("Running onBindViewHolder for item: %s", position);
         final T item = itemList.get(position);
         holder.title.setText(item.getTitle());
         holder.description.setText( item.getDescription());
         holder.downs.setText(String.valueOf(item.getDowns()));
         holder.ups.setText(String.valueOf(item.getUps()));
-        Timber.d(item.toString());
         String imageLink = null;
         if (item instanceof ImgurGallery) {
             if (((ImgurGallery) item).getCover() == null) {
@@ -72,13 +69,11 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
                 } else {
                     imageLink = "";
                 }
-                Timber.d("Item is ImgurGallery with NULL cover link: %s", imageLink);
             } else {
                 imageLink = "https://i.imgur.com/"
                         .concat(((ImgurGallery) item)
                                 .getCover())
                         .concat(".jpg");
-                Timber.d("Item is ImgurGallery with cover link: %s", imageLink);
             }
 
         } else if (item instanceof ImgurImage){
@@ -87,25 +82,13 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
 //        if (imageLink != null && !imageLink.isEmpty()) {
 
         if (imageLink == null || imageLink.isEmpty()) {
-            Picasso.get()
+            Glide.with(holder.image.getContext())
                     .load(R.drawable.ic_launcher_foreground)
-                    .resize(450, 450)
                     .into(holder.image);
         } else {
-            Picasso.get()
+            Glide.with(holder.image.getContext())
                     .load(imageLink)
-                    .resize(450, 450)
-                    .into(holder.image, new Callback() {
-                        @Override
-                        public void onSuccess() {
-
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Timber.e("Picasso image Error: %s", e);
-                        }
-                    });
+                    .into(holder.image);
         }
     }
 

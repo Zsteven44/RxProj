@@ -13,7 +13,7 @@ abstract public class ImgurPagination extends RecyclerView.OnScrollListener {
     private boolean loading = true;
     private int startingPageIndex = 0;
 
-    public ImgurPagination(@NonNull final RecyclerView.LayoutManager gridLayoutManager) {
+    protected ImgurPagination(@NonNull final RecyclerView.LayoutManager gridLayoutManager) {
         this.gridLayoutManager = (GridLayoutManager) gridLayoutManager;
     }
 
@@ -42,6 +42,10 @@ abstract public class ImgurPagination extends RecyclerView.OnScrollListener {
             onLoadMore(currentPage, totalItemCount, recyclerView);
             loading = true;
         }
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
     }
 
     abstract public void onLoadMore(final int currentPage,

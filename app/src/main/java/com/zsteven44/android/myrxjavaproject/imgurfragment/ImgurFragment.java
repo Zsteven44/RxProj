@@ -20,8 +20,6 @@ import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurGalleryLis
 import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurPagination;
 import com.zsteven44.android.myrxjavaproject.services.ServiceGenerator;
 
-import org.reactivestreams.Publisher;
-
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -32,7 +30,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
@@ -55,15 +52,16 @@ public class ImgurFragment extends Fragment {
     private Unbinder unbinder;
     private ImgurAdapter<ImgurGallery> adapter;
     private CompositeDisposable disposables;
+    private GridLayoutManager layoutManager;
     private Flowable<Response<ImgurGalleryList>> imgurGalleryObservable;
     private SearchSort searchSort;
     private SearchWindow searchWindow;
     private String searchString;
-    private int page= 0;
 
     private PublishProcessor<Integer> pagination;
     private boolean requestOnWay = false;
 
+    ImgurPagination imgurPagination;
     private enum SearchWindow{
         day,
         week,
@@ -76,6 +74,8 @@ public class ImgurFragment extends Fragment {
         viral,
         top;
     }
+
+
 
     public ImgurFragment() {
     }
@@ -95,7 +95,7 @@ public class ImgurFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         pagination = PublishProcessor.create();
-        GridLayoutManager layoutManager =new GridLayoutManager(getActivity(),
+        layoutManager =new GridLayoutManager(getActivity(),
                 2,
                 GridLayoutManager.VERTICAL,
                 false);
@@ -107,6 +107,14 @@ public class ImgurFragment extends Fragment {
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         recyclerView.setAdapter(adapter);
+        imgurPagination = new ImgurPagination(layoutManager) {
+            @Override
+            public void onLoadMore(int currentPage, int totalItemCount, @NonNull View view) {
+                Timber.d("onLoadMoreTriggered, current page: %s and current itemCount: %s", currentPage, totalItemCount);
+                if (!requestOnWay) pagination.onNext(currentPage);
+            }
+        };
+
         disposables= new CompositeDisposable();
         disposables
                 .add(RxView
@@ -115,92 +123,76 @@ public class ImgurFragment extends Fragment {
                             @Override
                             public void accept(Object aVoid) throws Exception {
                                 Timber.d("SearchButton 'RxView.clicks' registered.");
+                                imgurPagination.setCurrentPage(1);
+                                requestOnWay=true;
                                 searchWindow = SearchWindow.day;
                                 searchSort = SearchSort.top;
                                 searchString = searchText.getText().toString();
-                                page = 1;
-                                ImgurFragment.this.loadGalleries(searchSort.name(),
+                                ImgurFragment.this.fetchGalleries(searchSort.name(),
                                         searchWindow.name(),
                                         searchString,
-                                        page,
+                                        1,
                                         false);
                                 recyclerView.smoothScrollToPosition(0);
                             }
                         }));
-        recyclerView.addOnScrollListener(new ImgurPagination(layoutManager) {
-            @Override
-            public void onLoadMore(int currentPage, int totalItemCount, @NonNull View view) {
-                if (!requestOnWay) pagination.onNext(currentPage);
-            }
-        });
+        recyclerView.addOnScrollListener(imgurPagination);
         Disposable disposable = pagination
                 .onBackpressureDrop()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(integer -> {
                     requestOnWay = true;
-                    // TODO progress bar fuckery
-                })
-                .concatMap((Function<Integer, Publisher<Response<ImgurGalleryList>>>) integer ->
-                        loadGalleries(searchSort.name(),
-                        searchWindow.name(),
-                        searchString,
-                        integer,
-                        false))
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(imgurGalleryList -> {
-                    if (imgurGalleryList.isSuccessful()) {
-                        adapter.addItemList(imgurGalleryList.body().getData(), true);
-                    } else {
-                        Timber.e(String.valueOf(imgurGalleryList.code())+" "+imgurGalleryList.message());
-                    }
-                    requestOnWay = false;
-//                        loadUser.setVisibility(View.INVISIBLE);
+                    Timber.d("doOnNext pagination triggered.");
+                    ImgurFragment.this.fetchGalleries(searchSort.name(),
+                            searchWindow.name(),
+                            searchString,
+                            integer,
+                            true);
                 })
                 .doOnError(throwable -> {
                     if (throwable instanceof HttpException) {
                         Response<?> response = ((HttpException) throwable).response();
                         Timber.d(response.message());
                     }
-
                 })
                 .subscribe();
 
         disposables.add(disposable);
     }
 
-    private Flowable<Response<ImgurGalleryList>> loadGalleries(@NonNull final String searchType,
+    private void fetchGalleries(@NonNull final String searchType,
                                                  @NonNull final String searchWindow,
                                                  @NonNull final String searchTerm,
                                                  final int resultsPage,
                                                  final boolean addingToList) {
-        Timber.d("Running loadGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s'",
+        Timber.d("Running fetchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s'",
                 searchType,
                 searchWindow,
                 searchTerm,
                 resultsPage);
         ServiceGenerator.changeApiBaseUrl(IMGUR_API_BASE_URL);
         ImgurService service = ServiceGenerator.createService(ImgurService.class);
-        imgurGalleryObservable = service.getSearchGallery(searchType,searchWindow,resultsPage,searchTerm);
-        return imgurGalleryObservable
+
+        Timber.d("finishing fetchGalleries request.");
+        disposables.add(service.getSearchGallery(searchType,searchWindow,resultsPage,searchTerm)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ImgurGalleryList>>() {
+                    @Override
+                    public void accept(@NonNull final Response<ImgurGalleryList> response) throws Exception {
+                        Timber.d("Consumer is subscribed to imgurGalleryObservable.");
+                        Timber.d(response.body().toString());
+                        adapter.addItemList(response.body().getData(), addingToList);
+                        requestOnWay = false;
+                    }
 
-
-//        disposables
-//                .add(imgurGalleryObservable
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeWith(new DisposableFlowa<ImgurGalleryList>() {
-//                        @Override
-//                        public void onSuccess(ImgurGalleryList imgurGalleryList) {
-//                            Timber.d("Running imgurGalleryObservable 'onSuccess': %s",
-//                                    imgurGalleryList.toString());
-//                            adapter.addItemList(imgurGalleryList.getData(), addingToList);
-//                        }
-//                        @Override
-//                        public void onError(Throwable e) {
-//                            Timber.e(e);
-//                        }
-//                    }));
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Timber.e(throwable);
+                    }
+                }));
     }
 
 
