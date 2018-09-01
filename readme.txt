@@ -10,8 +10,8 @@ Retrofit (Retrofit-RxJava2Adapter)
     Observable<ImgurGalleryList> return type.
 
 RxJava2 (RxAndroid and RxBinding)
-    - Created Observables from network calls via retrofit-rxjava adapter.
-    - Subscribed to ImgurService observable with DisposableObserver that adds the
+    - Created Observable from network calls via retrofit-rxjava adapter.
+    - Subscribed to ImgurService observable with DisposableSingleObserver that adds the
     response body via onNext(), asynchronously, observers are subscribed on separate
     IO thread with callbacks executed on MainThread provided via RxAndroid library.
     - ImgurFragment search button observable is subscribed to for onClick events via
@@ -35,6 +35,11 @@ Butterknife
     - Binds layout views to their respective Activities, Fragments and Viewholders,
     for cleaner code.
 
+Picasso
+    - Handles image bitmap rendering asynchronously.
 
+
+Support Libraries
+Dagger
 LeakCanary
 Stetho

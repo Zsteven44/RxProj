@@ -17,18 +17,26 @@ import com.zsteven44.android.myrxjavaproject.R;
 import com.zsteven44.android.myrxjavaproject.imgur.ImgurAdapter;
 import com.zsteven44.android.myrxjavaproject.imgur.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.imgur.ImgurGalleryList;
+import com.zsteven44.android.myrxjavaproject.imgur.ImgurPagination;
 import com.zsteven44.android.myrxjavaproject.services.ServiceGenerator;
+
+import org.reactivestreams.Publisher;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
+import retrofit2.Response;
 import timber.log.Timber;
 
 import static com.zsteven44.android.myrxjavaproject.AppConstants.IMGUR_API_BASE_URL;
@@ -47,91 +55,154 @@ public class ImgurFragment extends Fragment {
     private Unbinder unbinder;
     private ImgurAdapter<ImgurGallery> adapter;
     private CompositeDisposable disposables;
+    private Flowable<Response<ImgurGalleryList>> imgurGalleryObservable;
+    private SearchSort searchSort;
+    private SearchWindow searchWindow;
+    private String searchString;
+    private int page= 0;
+
+    private PublishProcessor<Integer> pagination;
+    private boolean requestOnWay = false;
+
+    private enum SearchWindow{
+        day,
+        week,
+        month,
+        year,
+        all;
+    }
+    private enum SearchSort{
+        time,
+        viral,
+        top;
+    }
+
     public ImgurFragment() {
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_imgur, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Timber.tag(ImgurFragment.class.getName());
-        Timber.d("ImgurFragment view created.");
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
+        pagination = PublishProcessor.create();
+        GridLayoutManager layoutManager =new GridLayoutManager(getActivity(),
                 2,
                 GridLayoutManager.VERTICAL,
-                false));
+                false);
+        recyclerView.setLayoutManager(layoutManager);
         adapter = new ImgurAdapter<ImgurGallery>(new ArrayList<ImgurGallery>(),
                 R.layout.row_layout_imgur);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(10);
+        recyclerView.setDrawingCacheEnabled(true);
+        recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         recyclerView.setAdapter(adapter);
         disposables= new CompositeDisposable();
         disposables
                 .add(RxView
                         .clicks(searchButton)
-                        .subscribe(aVoid ->
-                        {
-                            Timber.d("SearchButton 'RxView.clicks' registered.");
-                            loadGalleries("top",
-                                    "day",
-                                    searchText.getText().toString(),
-                                    1);
+                        .subscribe(new Consumer<Object>() {
+                            @Override
+                            public void accept(Object aVoid) throws Exception {
+                                Timber.d("SearchButton 'RxView.clicks' registered.");
+                                searchWindow = SearchWindow.day;
+                                searchSort = SearchSort.top;
+                                searchString = searchText.getText().toString();
+                                page = 1;
+                                ImgurFragment.this.loadGalleries(searchSort.name(),
+                                        searchWindow.name(),
+                                        searchString,
+                                        page,
+                                        false);
+                                recyclerView.smoothScrollToPosition(0);
+                            }
                         }));
-
-
-    }
-
-    private void loadGalleries(@NonNull final String searchType,
-                               @NonNull final String searchWindow,
-                               @NonNull final String searchTerm,
-                               final int resultsPage) {
-        Timber.d("Running loadGalleries...");
-        Observable<ImgurGalleryList> imgurObservable = doSearchGalleries(searchType,searchWindow,searchTerm, resultsPage);
-        disposables.add(imgurObservable
-                .subscribeOn(Schedulers.io())
+        recyclerView.addOnScrollListener(new ImgurPagination(layoutManager) {
+            @Override
+            public void onLoadMore(int currentPage, int totalItemCount, @NonNull View view) {
+                if (!requestOnWay) pagination.onNext(currentPage);
+            }
+        });
+        Disposable disposable = pagination
+                .onBackpressureDrop()
+                .doOnNext(integer -> {
+                    requestOnWay = true;
+                    // TODO progress bar fuckery
+                })
+                .concatMap((Function<Integer, Publisher<Response<ImgurGalleryList>>>) integer ->
+                        loadGalleries(searchSort.name(),
+                        searchWindow.name(),
+                        searchString,
+                        integer,
+                        false))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<ImgurGalleryList>() {
-                    @Override
-                    public void onNext(ImgurGalleryList imgurGalleryList) {
-                        Timber.d("Running imgurObservable 'onNext': %s",
-                                imgurGalleryList.toString());
-                        adapter.addItemList(imgurGalleryList.getData());
+                .doOnNext(imgurGalleryList -> {
+                    if (imgurGalleryList.isSuccessful()) {
+                        adapter.addItemList(imgurGalleryList.body().getData(), true);
+                    } else {
+                        Timber.e(String.valueOf(imgurGalleryList.code())+" "+imgurGalleryList.message());
+                    }
+                    requestOnWay = false;
+//                        loadUser.setVisibility(View.INVISIBLE);
+                })
+                .doOnError(throwable -> {
+                    if (throwable instanceof HttpException) {
+                        Response<?> response = ((HttpException) throwable).response();
+                        Timber.d(response.message());
                     }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e(e);
-                    }
+                })
+                .subscribe();
 
-                    @Override
-                    public void onComplete() {
-                        Timber.d("Running imgurObservable 'onComplete'.");
-                    }
-                }));
+        disposables.add(disposable);
     }
 
-    public Observable<ImgurGalleryList> doSearchGalleries(@NonNull final String sort,
-                                                        @NonNull final String window,
-                                                        @Nullable final String search,
-                                                        final int resultsPage) {
-
-        Timber.d("Running doSearchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s", sort, window, search,resultsPage);
+    private Flowable<Response<ImgurGalleryList>> loadGalleries(@NonNull final String searchType,
+                                                 @NonNull final String searchWindow,
+                                                 @NonNull final String searchTerm,
+                                                 final int resultsPage,
+                                                 final boolean addingToList) {
+        Timber.d("Running loadGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s'",
+                searchType,
+                searchWindow,
+                searchTerm,
+                resultsPage);
         ServiceGenerator.changeApiBaseUrl(IMGUR_API_BASE_URL);
         ImgurService service = ServiceGenerator.createService(ImgurService.class);
-        Observable<ImgurGalleryList> call = service.getSearchGallery(sort, window, resultsPage, search);
-        return call;
+        imgurGalleryObservable = service.getSearchGallery(searchType,searchWindow,resultsPage,searchTerm);
+        return imgurGalleryObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+
+//        disposables
+//                .add(imgurGalleryObservable
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribeWith(new DisposableFlowa<ImgurGalleryList>() {
+//                        @Override
+//                        public void onSuccess(ImgurGalleryList imgurGalleryList) {
+//                            Timber.d("Running imgurGalleryObservable 'onSuccess': %s",
+//                                    imgurGalleryList.toString());
+//                            adapter.addItemList(imgurGalleryList.getData(), addingToList);
+//                        }
+//                        @Override
+//                        public void onError(Throwable e) {
+//                            Timber.e(e);
+//                        }
+//                    }));
     }
 
-    /*
-        Need to load imgur images via search and display them in adapter using
-        rxjava observables.  Images need to be displayed with picass/glide.
-
-     */
 
     @Override
     public void onDestroy() {

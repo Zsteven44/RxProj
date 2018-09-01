@@ -1,5 +1,6 @@
 package com.zsteven44.android.myrxjavaproject.imgur;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,29 +21,33 @@ import timber.log.Timber;
 
 public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<ImgurAdapter.ImgurViewHolder> {
 
-    private List<T> itemList = new ArrayList<>();
+    private List<T> itemList;
     private int rowLayout;
 
-    public ImgurAdapter(ArrayList<T> itemList,
-                        int rowLayout) {
+    public ImgurAdapter(@NonNull final ArrayList<T> itemList,
+                        final int rowLayout) {
         this.itemList = itemList;
         this.rowLayout = rowLayout;
 
     }
 
-    public void addItem(T item, int position) {
+    public void addItem(@NonNull final T item,
+                        final int position) {
         itemList.add(position, item);
         notifyItemInserted(position);
     }
 
-    public void addItemList(List<T> images){
-        itemList.clear();
+    public void addItemList(@NonNull final List<T> images,
+                            final boolean addingToList){
+        if (!addingToList)itemList.clear();
         itemList.addAll(images);
         notifyDataSetChanged();
     }
 
+
     @Override
-    public ImgurViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImgurViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
+                                              final int viewType) {
         View v= LayoutInflater
                 .from(parent.getContext())
                 .inflate(rowLayout, parent, false);
@@ -50,7 +55,8 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
     }
 
     @Override
-    public void onBindViewHolder(ImgurViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ImgurViewHolder holder,
+                                 final int position) {
         Timber.d("Running onBindViewHolder for item: %s", position);
         final T item = itemList.get(position);
         holder.title.setText(item.getTitle());
@@ -79,7 +85,8 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
             Timber.d("Item is ImgurImage with link: %s", ((ImgurImage) item).getLink());
         }
 //        if (imageLink != null && !imageLink.isEmpty()) {
-        if (imageLink.isEmpty() || imageLink == null){
+
+        if (imageLink == null || imageLink.isEmpty()) {
             Picasso.get()
                     .load(R.drawable.ic_launcher_foreground)
                     .resize(450, 450)
@@ -88,7 +95,7 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
             Picasso.get()
                     .load(imageLink)
                     .resize(450, 450)
-                    .into(holder.image, new Callback(){
+                    .into(holder.image, new Callback() {
                         @Override
                         public void onSuccess() {
 
@@ -115,7 +122,7 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         @BindView(R.id.row_imgur_downs)TextView downs;
         @BindView(R.id.row_imgur_ups)TextView ups;
 
-        public ImgurViewHolder(View itemView) {
+        public ImgurViewHolder(@NonNull final View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
