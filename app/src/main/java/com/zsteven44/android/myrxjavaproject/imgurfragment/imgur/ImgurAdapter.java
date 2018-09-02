@@ -1,6 +1,7 @@
 package com.zsteven44.android.myrxjavaproject.imgurfragment.imgur;
 
 import android.support.annotation.NonNull;
+import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,15 +80,19 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         } else if (item instanceof ImgurImage){
             Timber.d("Item is ImgurImage with link: %s", ((ImgurImage) item).getLink());
         }
-//        if (imageLink != null && !imageLink.isEmpty()) {
 
         if (imageLink == null || imageLink.isEmpty()) {
             Glide.with(holder.image.getContext())
                     .load(R.drawable.ic_launcher_foreground)
                     .into(holder.image);
         } else {
+            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(holder.image.getContext());
+            circularProgressDrawable.setStrokeWidth(5f);
+            circularProgressDrawable.setCenterRadius(30f);
+            circularProgressDrawable.start();
             Glide.with(holder.image.getContext())
                     .load(imageLink)
+                    .placeholder(circularProgressDrawable)
                     .into(holder.image);
         }
     }
