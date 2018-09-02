@@ -1,6 +1,6 @@
-package com.zsteven44.android.myrxjavaproject.imgurfragment;
+package com.zsteven44.android.myrxjavaproject.api;
 
-import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurGalleryList;
+import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
 
 import io.reactivex.Flowable;
 import retrofit2.Response;

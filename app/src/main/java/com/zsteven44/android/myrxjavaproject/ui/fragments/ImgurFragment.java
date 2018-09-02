@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.imgurfragment;
+package com.zsteven44.android.myrxjavaproject.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,11 +14,12 @@ import android.widget.EditText;
 
 import com.jakewharton.rxbinding2.view.RxView;
 import com.zsteven44.android.myrxjavaproject.R;
-import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurAdapter;
-import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurGallery;
-import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurGalleryList;
-import com.zsteven44.android.myrxjavaproject.imgurfragment.imgur.ImgurPagination;
-import com.zsteven44.android.myrxjavaproject.services.ServiceGenerator;
+import com.zsteven44.android.myrxjavaproject.api.ImgurService;
+import com.zsteven44.android.myrxjavaproject.ui.adapters.ImgurAdapter;
+import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
+import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
+import com.zsteven44.android.myrxjavaproject.ui.utils.ImgurPagination;
+import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
 
 import java.util.ArrayList;
 
@@ -36,7 +37,7 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 import timber.log.Timber;
 
-import static com.zsteven44.android.myrxjavaproject.AppConstants.IMGUR_API_BASE_URL;
+import static com.zsteven44.android.myrxjavaproject.utils.AppConstants.IMGUR_API_BASE_URL;
 
 public class ImgurFragment extends Fragment {
 
@@ -133,7 +134,7 @@ public class ImgurFragment extends Fragment {
                                         searchString,
                                         1,
                                         false);
-                                recyclerView.smoothScrollToPosition(0);
+                                recyclerView.scrollToPosition(0);
                             }
                         }));
         recyclerView.addOnScrollListener(imgurPagination);

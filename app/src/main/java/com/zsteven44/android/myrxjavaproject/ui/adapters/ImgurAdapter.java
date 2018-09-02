@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.imgurfragment.imgur;
+package com.zsteven44.android.myrxjavaproject.ui.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -11,6 +11,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zsteven44.android.myrxjavaproject.R;
+import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
+import com.zsteven44.android.myrxjavaproject.model.ImgurImage;
+import com.zsteven44.android.myrxjavaproject.model.ImgurItem;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -38,6 +38,7 @@ ext{
     dagger_version = '2.7'
     picasso_version = '2.71828'
     gson_version = '2.8.2'
+    lifecycle_version = "1.1.1"
 }
 
 dependencies {
@@ -48,6 +49,9 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$supportlib_version"
     implementation "com.android.support:cardview-v7:$supportlib_version"
     implementation "com.android.support.constraint:constraint-layout:$constraintlayout_version"
+
+    // ViewModel, Lifecycles, LiveData
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
 
     // Rx Java/Android/Binding
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"

@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.services;
+package com.zsteven44.android.myrxjavaproject.api;
 
 import java.security.cert.CertificateException;
 

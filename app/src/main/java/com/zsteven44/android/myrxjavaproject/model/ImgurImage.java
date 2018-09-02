@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.imgurfragment.imgur;
+package com.zsteven44.android.myrxjavaproject.model;
 
 public class ImgurImage extends ImgurItem {
 

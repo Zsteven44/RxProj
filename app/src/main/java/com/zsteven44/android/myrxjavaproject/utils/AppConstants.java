@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject;
+package com.zsteven44.android.myrxjavaproject.utils;
 
 public class AppConstants {
 

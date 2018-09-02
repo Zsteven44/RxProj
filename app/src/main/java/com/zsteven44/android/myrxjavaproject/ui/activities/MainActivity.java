@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject;
+package com.zsteven44.android.myrxjavaproject.ui.activities;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,7 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
-import com.zsteven44.android.myrxjavaproject.imgurfragment.ImgurFragment;
+import com.zsteven44.android.myrxjavaproject.R;
+import com.zsteven44.android.myrxjavaproject.ui.fragments.ImgurFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

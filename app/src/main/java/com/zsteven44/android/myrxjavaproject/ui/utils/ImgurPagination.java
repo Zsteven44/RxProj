@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.imgurfragment.imgur;
+package com.zsteven44.android.myrxjavaproject.ui.utils;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,7 +12,7 @@ abstract public class ImgurPagination extends RecyclerView.OnScrollListener {
     private int previousTotalItemCount = 0;
     private boolean loading = true;
     private int startingPageIndex = 0;
-    
+
 
     protected ImgurPagination(@NonNull final RecyclerView.LayoutManager gridLayoutManager) {
         this.gridLayoutManager = (GridLayoutManager) gridLayoutManager;
