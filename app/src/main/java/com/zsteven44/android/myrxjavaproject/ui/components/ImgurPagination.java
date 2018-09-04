@@ -1,4 +1,4 @@
-package com.zsteven44.android.myrxjavaproject.ui.utils;
+package com.zsteven44.android.myrxjavaproject.ui.components;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;

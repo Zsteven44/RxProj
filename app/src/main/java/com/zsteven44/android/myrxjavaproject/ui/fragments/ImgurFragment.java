@@ -1,5 +1,7 @@
 package com.zsteven44.android.myrxjavaproject.ui.fragments;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,18 +17,20 @@ import android.widget.EditText;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.zsteven44.android.myrxjavaproject.R;
 import com.zsteven44.android.myrxjavaproject.api.ImgurService;
-import com.zsteven44.android.myrxjavaproject.ui.adapters.ImgurAdapter;
+import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
-import com.zsteven44.android.myrxjavaproject.ui.utils.ImgurPagination;
-import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
+import com.zsteven44.android.myrxjavaproject.ui.adapters.ImgurAdapter;
+import com.zsteven44.android.myrxjavaproject.ui.components.ImgurPagination;
+import com.zsteven44.android.myrxjavaproject.ui.viewmodels.ImgurViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -41,28 +45,26 @@ import static com.zsteven44.android.myrxjavaproject.utils.AppConstants.IMGUR_API
 
 public class ImgurFragment extends Fragment {
 
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-
-    @BindView(R.id.search_button)
-    Button searchButton;
-
-    @BindView(R.id.search_text)
-    EditText searchText;
+    @BindView(R.id.recyclerView) RecyclerView recyclerView;
+    @BindView(R.id.search_button) Button searchButton;
+    @BindView(R.id.search_text) EditText searchText;
 
     private Unbinder unbinder;
-    private ImgurAdapter<ImgurGallery> adapter;
     private CompositeDisposable disposables;
+
+    private ImgurViewModel imgurViewModel;
+    private Observer<List<ImgurGallery>> galleryListObserver;
+
+    private ImgurAdapter<ImgurGallery> adapter;
     private GridLayoutManager layoutManager;
-    private Flowable<Response<ImgurGalleryList>> imgurGalleryObservable;
+
+    private PublishProcessor<Integer> pagination;
+    private ImgurPagination imgurPagination;
+
     private SearchSort searchSort;
     private SearchWindow searchWindow;
     private String searchString;
 
-    private PublishProcessor<Integer> pagination;
-    private boolean requestOnWay = false;
-
-    ImgurPagination imgurPagination;
     private enum SearchWindow{
         day,
         week,
@@ -76,8 +78,6 @@ public class ImgurFragment extends Fragment {
         top;
     }
 
-
-
     public ImgurFragment() {
     }
 
@@ -88,6 +88,7 @@ public class ImgurFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_imgur, container, false);
         unbinder = ButterKnife.bind(this, view);
+        imgurViewModel = ViewModelProviders.of(this).get(ImgurViewModel.class);
         return view;
     }
 
@@ -95,7 +96,15 @@ public class ImgurFragment extends Fragment {
     public void onViewCreated(@NonNull final View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        pagination = PublishProcessor.create();
+        galleryListObserver = new Observer<List<ImgurGallery>>() {
+            @Override
+            public void onChanged(@Nullable List<ImgurGallery> galleryList) {
+                adapter.addItemList(galleryList != null ? galleryList : new ArrayList<ImgurGallery>(), false);
+            }
+        };
+        if (imgurViewModel.getGalleries().getValue().isEmpty())imgurViewModel.getGalleries().observe(this,galleryListObserver);
+
+        // RecyclerView, Adapter, LayoutManager
         layoutManager =new GridLayoutManager(getActivity(),
                 2,
                 GridLayoutManager.VERTICAL,
@@ -108,42 +117,22 @@ public class ImgurFragment extends Fragment {
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         recyclerView.setAdapter(adapter);
+        // ScrollListener
+        pagination = PublishProcessor.create();
         imgurPagination = new ImgurPagination(layoutManager) {
             @Override
             public void onLoadMore(int currentPage, int totalItemCount, @NonNull View view) {
                 Timber.d("onLoadMoreTriggered, current page: %s and current itemCount: %s", currentPage, totalItemCount);
-                if (!requestOnWay) pagination.onNext(currentPage);
+                pagination.onNext(currentPage);
             }
         };
-
-        disposables= new CompositeDisposable();
-        disposables
-                .add(RxView
-                        .clicks(searchButton)
-                        .subscribe(new Consumer<Object>() {
-                            @Override
-                            public void accept(Object aVoid) throws Exception {
-                                Timber.d("SearchButton 'RxView.clicks' registered.");
-                                imgurPagination.setCurrentPage(1);
-                                requestOnWay=true;
-                                searchWindow = SearchWindow.day;
-                                searchSort = SearchSort.top;
-                                searchString = searchText.getText().toString();
-                                ImgurFragment.this.fetchGalleries(searchSort.name(),
-                                        searchWindow.name(),
-                                        searchString,
-                                        1,
-                                        false);
-                                recyclerView.scrollToPosition(0);
-                            }
-                        }));
         recyclerView.addOnScrollListener(imgurPagination);
         Disposable disposable = pagination
                 .onBackpressureDrop()
+                .debounce(2, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(integer -> {
-                    requestOnWay = true;
                     Timber.d("doOnNext pagination triggered.");
                     ImgurFragment.this.fetchGalleries(searchSort.name(),
                             searchWindow.name(),
@@ -158,8 +147,31 @@ public class ImgurFragment extends Fragment {
                     }
                 })
                 .subscribe();
-
         disposables.add(disposable);
+        // RxBinding Search Button
+        disposables= new CompositeDisposable();
+        disposables
+                .add(RxView
+                        .clicks(searchButton)
+                        .debounce(2, TimeUnit.SECONDS)
+                        .subscribe(new Consumer<Object>() {
+                            @Override
+                            public void accept(Object aVoid) throws Exception {
+                                Timber.d("SearchButton 'RxView.clicks' registered.");
+                                imgurPagination.setCurrentPage(1);
+                                searchWindow = SearchWindow.day;
+                                searchSort = SearchSort.top;
+                                searchString = searchText.getText().toString();
+                                ImgurFragment.this.fetchGalleries(searchSort.name(),
+                                        searchWindow.name(),
+                                        searchString,
+                                        1,
+                                        false);
+                                recyclerView.scrollToPosition(0);
+                            }
+                        }));
+
+
     }
 
     private void fetchGalleries(@NonNull final String searchType,
