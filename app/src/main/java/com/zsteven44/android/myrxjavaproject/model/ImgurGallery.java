@@ -1,11 +1,19 @@
 package com.zsteven44.android.myrxjavaproject.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+
 import java.util.List;
 
+@Entity
 public class ImgurGallery extends ImgurItem {
 
+    @ColumnInfo(name="cover")
     private String cover;
+
     private List<ImgurImage> images;
+
+    @ColumnInfo(name="is_album")
     private boolean is_album;
 
     public ImgurGallery(String id,
