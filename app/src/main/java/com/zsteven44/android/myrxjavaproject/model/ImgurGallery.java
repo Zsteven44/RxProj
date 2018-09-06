@@ -2,6 +2,7 @@ package com.zsteven44.android.myrxjavaproject.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class ImgurGallery extends ImgurItem {
     @ColumnInfo(name="cover")
     private String cover;
 
+    @Ignore
     private List<ImgurImage> images;
 
     @ColumnInfo(name="is_album")

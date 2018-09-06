@@ -174,6 +174,7 @@ public class ImgurFragment extends Fragment {
 
     }
 
+
     private void fetchGalleries(@NonNull final String searchType,
                                                  @NonNull final String searchWindow,
                                                  @NonNull final String searchTerm,
@@ -197,7 +198,6 @@ public class ImgurFragment extends Fragment {
                         Timber.d("Consumer is subscribed to imgurGalleryObservable.");
                         Timber.d(response.body().toString());
                         adapter.addItemList(response.body().getData(), addingToList);
-                        requestOnWay = false;
                     }
 
                 }, new Consumer<Throwable>() {
@@ -207,6 +207,8 @@ public class ImgurFragment extends Fragment {
                     }
                 }));
     }
+
+
 
 
     @Override

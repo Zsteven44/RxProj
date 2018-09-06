@@ -3,12 +3,15 @@ package com.zsteven44.android.myrxjavaproject.repository;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryDao;
+import com.zsteven44.android.myrxjavaproject.repository.utils.ImgurConverter;
 
 @Database(entities = {ImgurGallery.class}, version=1)
+@TypeConverters({ImgurConverter.class})
 public abstract class ImgurDatabase extends RoomDatabase {
     public abstract ImgurGalleryDao getGalleryDao();
 
