@@ -96,13 +96,13 @@ public class ImgurFragment extends Fragment {
     public void onViewCreated(@NonNull final View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        galleryListObserver = new Observer<List<ImgurGallery>>() {
+        imgurViewModel.getGalleries().observe(this, new Observer<List<ImgurGallery>>() {
             @Override
-            public void onChanged(@Nullable List<ImgurGallery> galleryList) {
-                adapter.addItemList(galleryList != null ? galleryList : new ArrayList<ImgurGallery>(), false);
+            public void onChanged(@Nullable List<ImgurGallery> imgurGalleries) {
+                adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>(),
+                        true);
             }
-        };
-        if (imgurViewModel.getGalleries().getValue().isEmpty())imgurViewModel.getGalleries().observe(this,galleryListObserver);
+        });
 
         // RecyclerView, Adapter, LayoutManager
         layoutManager =new GridLayoutManager(getActivity(),
@@ -134,7 +134,7 @@ public class ImgurFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(integer -> {
                     Timber.d("doOnNext pagination triggered.");
-                    ImgurFragment.this.fetchGalleries(searchSort.name(),
+                    ImgurFragment.this.getGalleries(searchSort.name(),
                             searchWindow.name(),
                             searchString,
                             integer,
@@ -157,55 +157,22 @@ public class ImgurFragment extends Fragment {
                         .subscribe(new Consumer<Object>() {
                             @Override
                             public void accept(Object aVoid) throws Exception {
-                                Timber.d("SearchButton 'RxView.clicks' registered.");
+                                Timber.d("SearchButton 'RxView.clicks registered.");
                                 imgurPagination.setCurrentPage(1);
                                 searchWindow = SearchWindow.day;
                                 searchSort = SearchSort.top;
                                 searchString = searchText.getText().toString();
-                                ImgurFragment.this.fetchGalleries(searchSort.name(),
+                                imgurViewModel.getGalleries(searchSort.name(),
                                         searchWindow.name(),
                                         searchString,
                                         1,
-                                        false);
+                                        true);
                                 recyclerView.scrollToPosition(0);
                             }
                         }));
 
 
-    }
 
-
-    private void fetchGalleries(@NonNull final String searchType,
-                                                 @NonNull final String searchWindow,
-                                                 @NonNull final String searchTerm,
-                                                 final int resultsPage,
-                                                 final boolean addingToList) {
-        Timber.d("Running fetchGalleries with arguments:\nsort='%s' \nwindow='%s'\nsearch='%s'\npage='%s'",
-                searchType,
-                searchWindow,
-                searchTerm,
-                resultsPage);
-        ServiceGenerator.changeApiBaseUrl(IMGUR_API_BASE_URL);
-        ImgurService service = ServiceGenerator.createService(ImgurService.class);
-
-        Timber.d("finishing fetchGalleries request.");
-        disposables.add(service.getSearchGallery(searchType,searchWindow,resultsPage,searchTerm)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Response<ImgurGalleryList>>() {
-                    @Override
-                    public void accept(@NonNull final Response<ImgurGalleryList> response) throws Exception {
-                        Timber.d("Consumer is subscribed to imgurGalleryObservable.");
-                        Timber.d(response.body().toString());
-                        adapter.addItemList(response.body().getData(), addingToList);
-                    }
-
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        Timber.e(throwable);
-                    }
-                }));
     }
 
 

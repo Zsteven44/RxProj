@@ -3,11 +3,14 @@ package com.zsteven44.android.myrxjavaproject.model;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 @Entity
 public abstract class ImgurItem {
 
-    @PrimaryKey private String id;
+    @PrimaryKey
+    @NonNull
+    private String id;
     @ColumnInfo(name="title") private String title;
     @ColumnInfo(name="description") private String description;
     @ColumnInfo(name="link") private String link;
