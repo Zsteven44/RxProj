@@ -1,6 +1,6 @@
 package com.zsteven44.android.myrxjavaproject.repository;
 
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
@@ -29,7 +29,11 @@ import static com.zsteven44.android.myrxjavaproject.utils.AppConstants.IMGUR_API
 public class ImgurRepository {
     private ImgurDatabase imgurDatabase;
     private ImgurGalleryDao galleryDao;
+
     private CompositeDisposable disposables;
+    private LiveData<List<ImgurGallery>> imgurGalleries;
+
+
 
     public ImgurRepository(){
         this.imgurDatabase = ImgurDatabase.getInstance(MyRxApplication.getAppContext());
@@ -37,7 +41,28 @@ public class ImgurRepository {
         disposables = new CompositeDisposable();
     }
 
-    public MutableLiveData<List<ImgurGallery>> fetchGalleries(@NonNull final String searchType,
+    public String getCachedSearchTerm() {
+//        CachedData cachedData = new CachedData();
+//        return cachedData.getCachedSearchTerm();
+        return null;
+    }
+
+    public String getCachedSearchWindow(){
+//        CachedData cachedData = new CachedData();
+//        return cachedData.getCachedSearchWindow();
+        return null;
+    }
+    public String getCachedSearchType(){
+//        CachedData cachedData = new CachedData();
+//        return cachedData.getCachedSearchType();
+        return null;
+    }
+
+    public LiveData<List<ImgurGallery>> getCachedGalleries() {
+        return this.imgurGalleries;
+    }
+
+    public LiveData<List<ImgurGallery>> fetchGalleries(@NonNull final String searchType,
                                                               @NonNull final String searchWindow,
                                                               @NonNull final String searchTerm,
                                                               final int resultsPage){

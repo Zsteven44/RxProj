@@ -16,24 +16,20 @@ import io.reactivex.disposables.CompositeDisposable;
 
 public class ImgurViewModel extends AndroidViewModel {
     private CompositeDisposable disposables = new CompositeDisposable();
-    private ImgurRepository imgurRepository = new ImgurRepository();
+    private ImgurRepository imgurRepository;
 
-    private MutableLiveData<List<ImgurGallery>> imgurGalleries;
-    private MutableLiveData<List<ImgurImage>> imgurImages;
+    private LiveData<List<ImgurGallery>> imgurGalleries;
+    private LiveData<List<ImgurImage>> imgurImages;
     private String searchType;
     private String searchWindow;
     private String searchTerm;
     private int page = 1;
 
-    public ImgurViewModel(@NonNull Application application) {
+    public ImgurViewModel(@NonNull final Application application) {
         super(application);
-    }
+        this.imgurRepository = new ImgurRepository();
+        this.imgurGalleries = imgurRepository.getCachedGalleries();
 
-
-    public LiveData<List<ImgurGallery>> clearGalleries() {
-        if (imgurGalleries == null) return new MutableLiveData<List<ImgurGallery>>();
-        imgurRepository.clearGalleries();
-        imgurGalleries = new MutableLiveData<>();
     }
 
     public void searchGalleries() {

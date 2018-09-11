@@ -5,4 +5,9 @@
     <string name="menu_item_imgur_search">Imgur Search</string>
     <string name="menu_item_installed_applications">Installed Applications</string>
     <string name="search_hint">Search for...</string>
+
+    <string name="cached_search_term_key">cached_search_term</string>
+    <string name="cached_search_window_key">cached_search_window</string>
+    <string name="cached_search_type_key">cached_search_type</string>
+
 </resources>

@@ -40,9 +40,8 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         notifyItemInserted(position);
     }
 
-    public void addItemList(@NonNull final List<T> images,
-                            final boolean addingToList){
-        if (!addingToList)itemList.clear();
+    public void addItemList(@NonNull final List<T> images){
+        itemList.clear();
         itemList.addAll(images);
         notifyDataSetChanged();
     }

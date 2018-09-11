@@ -99,8 +99,7 @@ public class ImgurFragment extends Fragment {
         imgurViewModel.getGalleries().observe(this, new Observer<List<ImgurGallery>>() {
             @Override
             public void onChanged(@Nullable List<ImgurGallery> imgurGalleries) {
-                adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>(),
-                        true);
+                adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>());
             }
         });
 
@@ -134,7 +133,7 @@ public class ImgurFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(integer -> {
                     Timber.d("doOnNext pagination triggered.");
-                    ImgurFragment.this.getGalleries(searchSort.name(),
+                    imgurViewModel.getGalleries(searchSort.name(),
                             searchWindow.name(),
                             searchString,
                             integer,
