@@ -12,6 +12,9 @@ import javax.inject.Inject;
 
 public class CachedData {
     private final String SHARED_PREFERNCE_KEY = "PREFERENCE_FILE_KEY";
+    private final String CACHED_SEARCH_TERM_KEY = "cached_search_term";
+    private final String CACHED_SEARCH_WINDOW_KEY = "cached_search_window";
+    private final String CACHED_SEARCH_TYPE_KEY = "cached_search_type";
     private SharedPreferences sharedPrefs;
 
     @Inject private Context context;
@@ -23,13 +26,13 @@ public class CachedData {
     }
 
     public LiveData<String> getCachedSearchTerm() {
-        return sharedPrefs.getString(context.getString(R.string.cached_search_term_key), "");
+        return sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, "");
     }
-    public String getCachedSearchWindow(){
-        return sharedPrefs.getString(context.getString(R.string.cached_search_window_key), "");
+    public LiveData<String> getCachedSearchWindow(){
+        return sharedPrefs.getString(CACHED_SEARCH_WINDOW_KEY, "");
     }
-    public String getCachedSearchType(){
-        return sharedPrefs.getString(context.getString(R.string.cached_search_type_key), "");
+    public LiveData<String> getCachedSearchType(){
+        return sharedPrefs.getString(CACHED_SEARCH_TYPE_KEY, "");
     }
 
     public void setCachedSearchParams(@Nullable final String term,

@@ -58,7 +58,7 @@ public class ImgurRepository {
         return cachedData.getCachedSearchType();
     }
 
-    public void setCachedSearchTerm(@Nullable final String term,
+    public void setCachedSearchParams(@Nullable final String term,
                                     @Nullable final String type,
                                     @Nullable final String window) {
         CachedData cachedData = new CachedData();

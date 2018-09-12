@@ -4,13 +4,13 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurImage;
 import com.zsteven44.android.myrxjavaproject.repository.ImgurRepository;
+import com.zsteven44.android.myrxjavaproject.repository.utils.CachedData;
 
 import java.util.List;
 
@@ -34,6 +34,7 @@ public class ImgurViewModel extends AndroidViewModel {
         this.searchTerm = imgurRepository.getCachedSearchTerm();
         this.searchType = imgurRepository.getCachedSearchType();
         this.searchWindow = imgurRepository.getCachedSearchWindow();
+
     }
 
     public void searchGalleries() {
@@ -71,7 +72,7 @@ public class ImgurViewModel extends AndroidViewModel {
     public void updateSearchSettings(@NonNull final String searchTerm,
                                      @NonNull final String searchType,
                                      @NonNull final String searchWindow) {
-
+        imgurRepository.setCachedSearchTerm();
     }
 
     @Override
