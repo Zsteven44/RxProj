@@ -1,24 +1,28 @@
 package com.zsteven44.android.myrxjavaproject.repository.utils;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 import com.zsteven44.android.myrxjavaproject.R;
 
+import javax.inject.Inject;
+
 public class CachedData {
     private final String SHARED_PREFERNCE_KEY = "PREFERENCE_FILE_KEY";
-    private Context context;
     private SharedPreferences sharedPrefs;
 
-    public CachedData(@NonNull final MyRxApplication application) {
-        this.context = application;
-        this.sharedPrefs = application.getSharedPreferences(SHARED_PREFERNCE_KEY, Context.MODE_PRIVATE);
+    @Inject private Context context;
+
+    public CachedData() {
+        MyRxApplication.getAppComponent().inject(this);
+        this.sharedPrefs = context.getSharedPreferences(SHARED_PREFERNCE_KEY, Context.MODE_PRIVATE);
 
     }
 
-    public String getCachedSearchTerm() {
+    public LiveData<String> getCachedSearchTerm() {
         return sharedPrefs.getString(context.getString(R.string.cached_search_term_key), "");
     }
     public String getCachedSearchWindow(){
@@ -28,14 +32,14 @@ public class CachedData {
         return sharedPrefs.getString(context.getString(R.string.cached_search_type_key), "");
     }
 
-    public void setCachedSearchParams(@NonNull final String term,
-                                        @NonNull final String window,
-                                        @NonNull final String type) {
-        sharedPrefs.edit()
-                .putString(context.getString(R.string.cached_search_term_key), term)
-                .putString(context.getString(R.string.cached_search_window_key), window)
-                .putString(context.getString(R.string.cached_search_type_key), type)
-                .apply();
+    public void setCachedSearchParams(@Nullable final String term,
+                                        @Nullable final String window,
+                                        @Nullable final String type) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        if (term != null) editor.putString(context.getString(R.string.cached_search_term_key), term);
+        if (window  != null) editor.putString(context.getString(R.string.cached_search_window_key), window);
+        if (type != null) editor.putString(context.getString(R.string.cached_search_type_key), type);
+        editor.apply();
 
     }
 

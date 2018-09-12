@@ -6,14 +6,17 @@ import android.content.pm.PackageManager;
 
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
-import com.zsteven44.android.myrxjavaproject.di.CacheComponent;
+import com.zsteven44.android.myrxjavaproject.di.AppComponent;
+import com.zsteven44.android.myrxjavaproject.di.AppModule;
+import com.zsteven44.android.myrxjavaproject.di.DaggerAppComponent;
 
 import timber.log.Timber;
 
 public class MyRxApplication extends Application {
     private static Context context;
 
-    private CacheComponent cacheComponent;
+    private static AppComponent appComponent;
+
 
     public MyRxApplication() {
     }
@@ -35,8 +38,18 @@ public class MyRxApplication extends Application {
             Timber.plant(new Timber.DebugTree());
         }
 
-        cacheComponent = createCacheComponent();
+        appComponent = buildComponent();
 
+    }
+
+    public AppComponent buildComponent(){
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .build();
+    }
+
+    public static AppComponent getAppComponent() {
+        return appComponent;
     }
 
     public static Context getAppContext() {
@@ -54,11 +67,5 @@ public class MyRxApplication extends Application {
         }
     }
 
-    public CacheComponent getCacheComponent() {
-        return cacheComponent;
-    }
-    private CacheComponent createCacheComponent() {
-        return null;
-    }
 
 }

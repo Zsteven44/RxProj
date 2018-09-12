@@ -2,6 +2,7 @@ package com.zsteven44.android.myrxjavaproject.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 import com.zsteven44.android.myrxjavaproject.api.ImgurService;
@@ -9,6 +10,7 @@ import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryDao;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
+import com.zsteven44.android.myrxjavaproject.repository.utils.CachedData;
 
 import java.util.List;
 
@@ -41,21 +43,26 @@ public class ImgurRepository {
         disposables = new CompositeDisposable();
     }
 
-    public String getCachedSearchTerm() {
-//        CachedData cachedData = new CachedData();
-//        return cachedData.getCachedSearchTerm();
-        return null;
+    public LiveData<String> getCachedSearchTerm() {
+        CachedData cachedData = new CachedData();
+
+        return cachedData.getCachedSearchTerm();
     }
 
-    public String getCachedSearchWindow(){
-//        CachedData cachedData = new CachedData();
-//        return cachedData.getCachedSearchWindow();
-        return null;
+    public LiveData<String> getCachedSearchWindow(){
+        CachedData cachedData = new CachedData();
+        return cachedData.getCachedSearchWindow();
     }
-    public String getCachedSearchType(){
-//        CachedData cachedData = new CachedData();
-//        return cachedData.getCachedSearchType();
-        return null;
+    public LiveData<String> getCachedSearchType(){
+        CachedData cachedData = new CachedData();
+        return cachedData.getCachedSearchType();
+    }
+
+    public void setCachedSearchTerm(@Nullable final String term,
+                                    @Nullable final String type,
+                                    @Nullable final String window) {
+        CachedData cachedData = new CachedData();
+        cachedData.setCachedSearchParams(term, type, window);
     }
 
     public LiveData<List<ImgurGallery>> getCachedGalleries() {
