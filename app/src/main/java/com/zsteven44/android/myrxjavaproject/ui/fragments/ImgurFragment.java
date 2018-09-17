@@ -16,13 +16,11 @@ import android.widget.EditText;
 
 import com.jakewharton.rxbinding2.view.RxView;
 import com.zsteven44.android.myrxjavaproject.R;
-import com.zsteven44.android.myrxjavaproject.api.ImgurService;
-import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
-import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
 import com.zsteven44.android.myrxjavaproject.ui.adapters.ImgurAdapter;
 import com.zsteven44.android.myrxjavaproject.ui.components.ImgurPagination;
 import com.zsteven44.android.myrxjavaproject.ui.viewmodels.ImgurViewModel;
+import com.zsteven44.android.myrxjavaproject.utils.SearchUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +38,6 @@ import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
 import retrofit2.Response;
 import timber.log.Timber;
-
-import static com.zsteven44.android.myrxjavaproject.utils.AppConstants.IMGUR_API_BASE_URL;
 
 public class ImgurFragment extends Fragment {
 
@@ -61,22 +57,10 @@ public class ImgurFragment extends Fragment {
     private PublishProcessor<Integer> pagination;
     private ImgurPagination imgurPagination;
 
-    private SearchSort searchSort;
-    private SearchWindow searchWindow;
+    private SearchUtils.SearchSort searchSort;
+    private SearchUtils.SearchWindow searchWindow;
     private String searchString;
 
-    private enum SearchWindow{
-        day,
-        week,
-        month,
-        year,
-        all;
-    }
-    private enum SearchSort{
-        time,
-        viral,
-        top;
-    }
 
     public ImgurFragment() {
     }
@@ -96,12 +80,9 @@ public class ImgurFragment extends Fragment {
     public void onViewCreated(@NonNull final View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        imgurViewModel.getGalleries().observe(this, new Observer<List<ImgurGallery>>() {
-            @Override
-            public void onChanged(@Nullable List<ImgurGallery> imgurGalleries) {
-                adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>());
-            }
-        });
+        //Init Observers
+        initObservers();
+        initValues();
 
         // RecyclerView, Adapter, LayoutManager
         layoutManager =new GridLayoutManager(getActivity(),
@@ -136,8 +117,7 @@ public class ImgurFragment extends Fragment {
                     imgurViewModel.getGalleries(searchSort.name(),
                             searchWindow.name(),
                             searchString,
-                            integer,
-                            true);
+                            integer);
                 })
                 .doOnError(throwable -> {
                     if (throwable instanceof HttpException) {
@@ -158,14 +138,13 @@ public class ImgurFragment extends Fragment {
                             public void accept(Object aVoid) throws Exception {
                                 Timber.d("SearchButton 'RxView.clicks registered.");
                                 imgurPagination.setCurrentPage(1);
-                                searchWindow = SearchWindow.day;
-                                searchSort = SearchSort.top;
+                                searchWindow = SearchUtils.SearchWindow.day;
+                                searchSort = SearchUtils.SearchSort.top;
                                 searchString = searchText.getText().toString();
                                 imgurViewModel.getGalleries(searchSort.name(),
                                         searchWindow.name(),
                                         searchString,
-                                        1,
-                                        true);
+                                        1);
                                 recyclerView.scrollToPosition(0);
                             }
                         }));
@@ -175,7 +154,25 @@ public class ImgurFragment extends Fragment {
     }
 
 
+    private void initObservers() {
+        imgurViewModel
+                .getGalleries(
+                        imgurViewModel.getSearchType(),
+                        imgurViewModel.getSearchWindow(),
+                        imgurViewModel.getSearchTerm(),
+                        1
+                        ).observe(this, new Observer<List<ImgurGallery>>() {
+            @Override
+            public void onChanged(@Nullable List<ImgurGallery> imgurGalleries) {
+                adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>());
+            }
+        });
+    }
 
+    private void initValues() {
+        this.searchText.setText(imgurViewModel.getSearchTerm());
+        // TODO add searchWindow and searchType init fields.
+    }
 
     @Override
     public void onDestroy() {

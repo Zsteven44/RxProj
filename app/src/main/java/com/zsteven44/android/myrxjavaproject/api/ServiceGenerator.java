@@ -18,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ServiceGenerator {
     private static String API_BASE_URL = "https://api.imgur.com/";
 
-    private static OkHttpClient.Builder okhttpclient = createUnsafeHttpClient();
+    private static  OkHttpClient.Builder okhttpclient = createUnsafeHttpClient();
 
     private static Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(API_BASE_URL)
@@ -54,7 +54,7 @@ public class ServiceGenerator {
         return retrofit.create(serviceClass);
     }
 
-    private static OkHttpClient.Builder createUnsafeHttpClient(){
+    private static  OkHttpClient.Builder createUnsafeHttpClient(){
         /*
         TODO implement custom trustManager and avoid allowing unsafe SSL handshakes, using this link:
         https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java
@@ -85,15 +85,15 @@ public class ServiceGenerator {
             // Create an ssl socket factory with our all-trusting manager
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-            okhttpclient = new OkHttpClient.Builder();
-            okhttpclient.sslSocketFactory(sslSocketFactory, (X509TrustManager)trustAllCerts[0]);
-            okhttpclient.hostnameVerifier(new HostnameVerifier() {
+            OkHttpClient.Builder okhttpclientBuilder = new OkHttpClient.Builder();
+            okhttpclientBuilder.sslSocketFactory(sslSocketFactory, (X509TrustManager)trustAllCerts[0]);
+            okhttpclientBuilder.hostnameVerifier(new HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
                     return true;
                 }
             });
-            return okhttpclient;
+            return okhttpclientBuilder;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

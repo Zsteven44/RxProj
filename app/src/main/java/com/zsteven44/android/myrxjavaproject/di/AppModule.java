@@ -10,15 +10,14 @@ import dagger.Provides;
 
 @Module
 public class AppModule {
-    private Context context;
+    private final Context context;
 
     public AppModule(@NonNull final Context context) {
         this.context = context;
     }
 
-    @Singleton
     @Provides
-    @NonNull
+    @Singleton
     public Context provideContext(){
         return context;
     }

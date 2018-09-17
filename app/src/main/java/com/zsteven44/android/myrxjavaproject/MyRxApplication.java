@@ -7,8 +7,6 @@ import android.content.pm.PackageManager;
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 import com.zsteven44.android.myrxjavaproject.di.AppComponent;
-import com.zsteven44.android.myrxjavaproject.di.AppModule;
-import com.zsteven44.android.myrxjavaproject.di.DaggerAppComponent;
 
 import timber.log.Timber;
 
@@ -38,15 +36,15 @@ public class MyRxApplication extends Application {
             Timber.plant(new Timber.DebugTree());
         }
 
-        appComponent = buildComponent();
+//        appComponent = buildComponent();
 
     }
 
-    public AppComponent buildComponent(){
-        return DaggerAppComponent.builder()
-                .appModule(new AppModule(this))
-                .build();
-    }
+//    public AppComponent buildComponent(){
+//        return DaggerAppComponent.builder()
+//                .appModule(new AppModule(this))
+//                .build();
+//    }
 
     public static AppComponent getAppComponent() {
         return appComponent;

@@ -18,7 +18,13 @@ public abstract class ImgurItem {
     @ColumnInfo(name="downs")private int downs;
     @ColumnInfo(name="views")private int views;
 
-    public ImgurItem(String id, String title, String description, String link, int ups, int downs, int views) {
+    public ImgurItem(@NonNull String id,
+              String title,
+              String description,
+              String link,
+              int ups,
+              int downs,
+              int views) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -28,6 +34,7 @@ public abstract class ImgurItem {
         this.views = views;
     }
 
+    @NonNull
     public String getId() {
         return id;
     }

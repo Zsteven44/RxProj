@@ -35,7 +35,7 @@ ext{
     junit_version = '4.12'
     espresso_version = '3.0.2'
     retrofit_version = '2.4.0'
-    dagger_version = '2.7'
+    dagger_version = '2.17'
     picasso_version = '2.71828'
     gson_version = '2.8.2'
     lifecycle_version = '1.1.1'
@@ -71,7 +71,9 @@ dependencies {
 
     // Dagger 2.0
     implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:2.17"
     annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+    annotationProcessor "com.google.dagger:dagger-android-processor:2.17"
 
     // Butterknife
     implementation "com.jakewharton:butterknife:$butterknife_version"

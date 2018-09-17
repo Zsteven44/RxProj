@@ -4,13 +4,11 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurImage;
 import com.zsteven44.android.myrxjavaproject.repository.ImgurRepository;
-import com.zsteven44.android.myrxjavaproject.repository.utils.CachedData;
 
 import java.util.List;
 
@@ -22,9 +20,9 @@ public class ImgurViewModel extends AndroidViewModel {
 
     private LiveData<List<ImgurGallery>> imgurGalleries;
     private LiveData<List<ImgurImage>> imgurImages;
-    private LiveData<String> searchType;
-    private LiveData<String> searchWindow;
-    private LiveData<String> searchTerm;
+    private String searchType;
+    private String searchWindow;
+    private String searchTerm;
     private int page = 1;
 
     public ImgurViewModel(@NonNull final Application application) {
@@ -34,7 +32,6 @@ public class ImgurViewModel extends AndroidViewModel {
         this.searchTerm = imgurRepository.getCachedSearchTerm();
         this.searchType = imgurRepository.getCachedSearchType();
         this.searchWindow = imgurRepository.getCachedSearchWindow();
-
     }
 
     public void searchGalleries() {
@@ -49,7 +46,10 @@ public class ImgurViewModel extends AndroidViewModel {
 
 
 
-    public LiveData<List<ImgurGallery>> getGalleries() {
+    public LiveData<List<ImgurGallery>> getGalleries(String type,
+                                                     String window,
+                                                     String term,
+                                                     int page ) {
         if (imgurGalleries == null) {
             imgurGalleries = new MutableLiveData<List<ImgurGallery>>();
             imgurGalleries = imgurRepository.fetchGalleries(searchType, searchWindow, searchTerm, page);
@@ -57,22 +57,22 @@ public class ImgurViewModel extends AndroidViewModel {
         return imgurGalleries;
     }
 
-    public LiveData<String> getSearchType() {
+    public String getSearchType() {
         return searchType;
     }
 
-    public LiveData<String> getSearchWindow() {
+    public String getSearchWindow() {
         return searchWindow;
     }
 
-    public LiveData<String> getSearchTerm() {
+    public String getSearchTerm() {
         return searchTerm;
     }
 
-    public void updateSearchSettings(@NonNull final String searchTerm,
+    public void updateSearchParams(@NonNull final String searchTerm,
                                      @NonNull final String searchType,
                                      @NonNull final String searchWindow) {
-        imgurRepository.setCachedSearchTerm();
+        imgurRepository.setCachedSearchParams(searchTerm, searchType, searchWindow);
     }
 
     @Override

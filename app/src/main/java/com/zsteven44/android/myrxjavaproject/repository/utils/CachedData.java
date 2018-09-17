@@ -1,12 +1,10 @@
 package com.zsteven44.android.myrxjavaproject.repository.utils;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
-import com.zsteven44.android.myrxjavaproject.R;
 
 import javax.inject.Inject;
 
@@ -25,13 +23,13 @@ public class CachedData {
 
     }
 
-    public LiveData<String> getCachedSearchTerm() {
+    public String getCachedSearchTerm() {
         return sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, "");
     }
-    public LiveData<String> getCachedSearchWindow(){
+    public String getCachedSearchWindow(){
         return sharedPrefs.getString(CACHED_SEARCH_WINDOW_KEY, "");
     }
-    public LiveData<String> getCachedSearchType(){
+    public String getCachedSearchType(){
         return sharedPrefs.getString(CACHED_SEARCH_TYPE_KEY, "");
     }
 
@@ -39,9 +37,9 @@ public class CachedData {
                                         @Nullable final String window,
                                         @Nullable final String type) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        if (term != null) editor.putString(context.getString(R.string.cached_search_term_key), term);
-        if (window  != null) editor.putString(context.getString(R.string.cached_search_window_key), window);
-        if (type != null) editor.putString(context.getString(R.string.cached_search_type_key), type);
+        if (term != null) editor.putString((CACHED_SEARCH_TERM_KEY), term);
+        if (window  != null) editor.putString(CACHED_SEARCH_WINDOW_KEY, window);
+        if (type != null) editor.putString(CACHED_SEARCH_TYPE_KEY, type);
         editor.apply();
 
     }

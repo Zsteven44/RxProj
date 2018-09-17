@@ -15,7 +15,7 @@ public class ImgurGallery extends ImgurItem {
     @Ignore
     private List<ImgurImage> images;
 
-    @ColumnInfo(name="is_album")
+    @Ignore
     private boolean is_album;
 
     public ImgurGallery(String id,
@@ -27,18 +27,18 @@ public class ImgurGallery extends ImgurItem {
                         int views,
                         String cover,
                         List<ImgurImage> images,
-                        boolean isAlbum) {
+                        boolean is_album) {
         super(id, title, description, link, ups, downs, views);
         this.cover = cover;
         this.images = images;
-        this.is_album = isAlbum;
+        this.is_album = is_album;
     }
 
-    public boolean getIsAlbum() {
+    public boolean getIs_Album() {
         return is_album;
     }
 
-    public void setIsAlbum(boolean is_album) {
+    public void setIs_Album(boolean is_album) {
         this.is_album = is_album;
     }
 
@@ -50,11 +50,11 @@ public class ImgurGallery extends ImgurItem {
         this.cover = cover;
     }
 
-    public List<ImgurImage> getImageList() {
+    public List<ImgurImage> getImages() {
         return images;
     }
 
-    public void setImageList(List<ImgurImage> images) {
+    public void setImages(List<ImgurImage> images) {
         this.images = images;
     }
 

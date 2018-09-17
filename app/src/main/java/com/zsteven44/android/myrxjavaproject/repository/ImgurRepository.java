@@ -2,7 +2,6 @@ package com.zsteven44.android.myrxjavaproject.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 import com.zsteven44.android.myrxjavaproject.api.ImgurService;
@@ -43,24 +42,23 @@ public class ImgurRepository {
         disposables = new CompositeDisposable();
     }
 
-    public LiveData<String> getCachedSearchTerm() {
+    public String getCachedSearchTerm() {
         CachedData cachedData = new CachedData();
-
         return cachedData.getCachedSearchTerm();
     }
 
-    public LiveData<String> getCachedSearchWindow(){
+    public String getCachedSearchWindow(){
         CachedData cachedData = new CachedData();
         return cachedData.getCachedSearchWindow();
     }
-    public LiveData<String> getCachedSearchType(){
+    public String getCachedSearchType(){
         CachedData cachedData = new CachedData();
         return cachedData.getCachedSearchType();
     }
 
-    public void setCachedSearchParams(@Nullable final String term,
-                                    @Nullable final String type,
-                                    @Nullable final String window) {
+    public void setCachedSearchParams(@NonNull final String term,
+                                    @NonNull final String type,
+                                    @NonNull final String window) {
         CachedData cachedData = new CachedData();
         cachedData.setCachedSearchParams(term, type, window);
     }

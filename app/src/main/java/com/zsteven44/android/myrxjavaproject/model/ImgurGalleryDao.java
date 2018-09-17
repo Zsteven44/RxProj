@@ -16,11 +16,11 @@ public interface ImgurGalleryDao {
     @Query("SELECT * FROM ImgurGallery")
     MutableLiveData<List<ImgurGallery>> getAll();
 
-    @Query("SELECT * FROM ImgurGallery WHERE id IN (:itemIds)")
-    MutableLiveData<List<ImgurGallery>> getAllByIds(int[] itemIds);
+//    @Query("SELECT * FROM ImgurGallery WHERE id IN (:itemIds)")
+//    MutableLiveData<List<ImgurGallery>> getAllByIds(int[] itemIds);
 
-    @Query("SELECT * FROM ImgurGallery WHERE title LIKE (:title) LIMIT 1")
-    MutableLiveData<ImgurGallery> getByTitle(String title);
+//    @Query("SELECT * FROM ImgurGallery WHERE title LIKE (:title) LIMIT 1")
+//    MutableLiveData<ImgurGallery> getByTitle(String title);
 
     @Insert(onConflict = REPLACE)
     void insertAll(List<ImgurGallery> galleries);
