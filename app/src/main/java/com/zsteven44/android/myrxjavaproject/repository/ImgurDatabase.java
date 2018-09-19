@@ -10,7 +10,7 @@ import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryDao;
 import com.zsteven44.android.myrxjavaproject.repository.utils.ImgurConverter;
 
-@Database(entities = {ImgurGallery.class}, version=1)
+@Database(entities = {ImgurGallery.class}, version=1, exportSchema = false)
 @TypeConverters({ImgurConverter.class})
 public abstract class ImgurDatabase extends RoomDatabase {
     public abstract ImgurGalleryDao getGalleryDao();
@@ -25,7 +25,7 @@ public abstract class ImgurDatabase extends RoomDatabase {
         return instance;
     }
 
-    private ImgurDatabase() {};
+    ImgurDatabase() {};
 
     private static ImgurDatabase create(final Context context) {
         return Room.databaseBuilder(

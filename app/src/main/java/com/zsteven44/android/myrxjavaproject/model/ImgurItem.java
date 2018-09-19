@@ -34,6 +34,9 @@ public abstract class ImgurItem {
         this.views = views;
     }
 
+    public ImgurItem() {
+    }
+
     @NonNull
     public String getId() {
         return id;

@@ -34,6 +34,9 @@ public class ImgurGallery extends ImgurItem {
         this.is_album = is_album;
     }
 
+    public ImgurGallery() {
+    }
+
     public boolean getIs_Album() {
         return is_album;
     }

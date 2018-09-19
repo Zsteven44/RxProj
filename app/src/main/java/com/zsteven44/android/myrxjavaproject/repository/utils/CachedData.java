@@ -4,23 +4,21 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
-import com.zsteven44.android.myrxjavaproject.MyRxApplication;
-
 import javax.inject.Inject;
 
 public class CachedData {
-    private final String SHARED_PREFERNCE_KEY = "PREFERENCE_FILE_KEY";
     private final String CACHED_SEARCH_TERM_KEY = "cached_search_term";
     private final String CACHED_SEARCH_WINDOW_KEY = "cached_search_window";
     private final String CACHED_SEARCH_TYPE_KEY = "cached_search_type";
+
     private SharedPreferences sharedPrefs;
+    private Context context;
 
-    @Inject private Context context;
-
-    public CachedData() {
-        MyRxApplication.getAppComponent().inject(this);
-        this.sharedPrefs = context.getSharedPreferences(SHARED_PREFERNCE_KEY, Context.MODE_PRIVATE);
-
+    @Inject
+    public CachedData(Context context,
+                      SharedPreferences sharedPreferences) {
+        this.context = context;
+        this.sharedPrefs = sharedPreferences;
     }
 
     public String getCachedSearchTerm() {

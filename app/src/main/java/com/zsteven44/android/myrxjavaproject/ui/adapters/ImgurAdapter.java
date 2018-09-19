@@ -67,7 +67,7 @@ public class ImgurAdapter<T extends ImgurItem> extends RecyclerView.Adapter<Imgu
         String imageLink = null;
         if (item instanceof ImgurGallery) {
             if (((ImgurGallery) item).getCover() == null) {
-                if (!((ImgurGallery) item).getIsAlbum()) {
+                if (!((ImgurGallery) item).getIs_Album()) {
                     imageLink = item.getLink();
                 } else {
                     imageLink = "";

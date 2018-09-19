@@ -1,6 +1,6 @@
 package com.zsteven44.android.myrxjavaproject.model;
 
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -14,7 +14,7 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface ImgurGalleryDao {
 
     @Query("SELECT * FROM ImgurGallery")
-    MutableLiveData<List<ImgurGallery>> getAll();
+    LiveData<List<ImgurGallery>> getAll();
 
 //    @Query("SELECT * FROM ImgurGallery WHERE id IN (:itemIds)")
 //    MutableLiveData<List<ImgurGallery>> getAllByIds(int[] itemIds);
