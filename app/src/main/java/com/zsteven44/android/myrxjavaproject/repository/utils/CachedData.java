@@ -11,15 +11,11 @@ public class CachedData {
     private final String CACHED_SEARCH_WINDOW_KEY = "cached_search_window";
     private final String CACHED_SEARCH_TYPE_KEY = "cached_search_type";
 
-    private SharedPreferences sharedPrefs;
-    private Context context;
+    @Inject public SharedPreferences sharedPrefs;
 
-    @Inject
-    public CachedData(Context context,
-                      SharedPreferences sharedPreferences) {
-        this.context = context;
-        this.sharedPrefs = sharedPreferences;
-    }
+    @Inject public Context context;
+
+    public CachedData() {}
 
     public String getCachedSearchTerm() {
         return sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, "");

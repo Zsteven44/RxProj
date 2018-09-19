@@ -13,6 +13,6 @@ import dagger.Component;
 public interface AppComponent {
 
     void inject(MyRxApplication app);
-    CachedData cachedData();
+    void inject(CachedData cachedData);
     void inject(BaseActivity activity);
 }

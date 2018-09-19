@@ -37,8 +37,6 @@ public class MyRxApplication extends Application {
 
         appComponent = buildComponent();
         appComponent.inject(this);
-        appComponent.cachedData();
-
     }
 
     public AppComponent buildComponent(){
