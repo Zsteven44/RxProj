@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import timber.log.Timber;
 
 @Module
 public class AppModule {
@@ -28,6 +29,11 @@ public class AppModule {
     @Provides
     @Singleton
     public SharedPreferences provideSharedPreferences() {
+        Timber.d("is applicaton provided shared prefs null: %s", application
+                .getSharedPreferences(
+                        SHARED_PREFERENCE_KEY,
+                        Context.MODE_PRIVATE)==null);
+
         return application
                 .getSharedPreferences(
                         SHARED_PREFERENCE_KEY,

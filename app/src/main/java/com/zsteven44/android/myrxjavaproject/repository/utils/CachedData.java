@@ -6,18 +6,26 @@ import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
+import timber.log.Timber;
+
 public class CachedData {
     private final String CACHED_SEARCH_TERM_KEY = "cached_search_term";
     private final String CACHED_SEARCH_WINDOW_KEY = "cached_search_window";
     private final String CACHED_SEARCH_TYPE_KEY = "cached_search_type";
 
-    @Inject public SharedPreferences sharedPrefs;
+    private SharedPreferences sharedPrefs;
 
-    @Inject public Context context;
+    private Context context;
 
-    public CachedData() {}
+    @Inject
+    public CachedData(SharedPreferences prefs, Context context) {
+        this.sharedPrefs = prefs;
+        this.context= context;
+    }
 
     public String getCachedSearchTerm() {
+        Timber.d("is context from dagger null: %s", context == null);
+        Timber.d("is shared prefs null: %s", sharedPrefs==null);
         return sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, "");
     }
     public String getCachedSearchWindow(){

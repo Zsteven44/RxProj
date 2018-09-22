@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 import com.zsteven44.android.myrxjavaproject.api.ImgurService;
 import com.zsteven44.android.myrxjavaproject.api.ServiceGenerator;
+import com.zsteven44.android.myrxjavaproject.di.AppComponent;
+import com.zsteven44.android.myrxjavaproject.di.AppModule;
+import com.zsteven44.android.myrxjavaproject.di.DaggerAppComponent;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryDao;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGalleryList;
@@ -13,7 +16,8 @@ import com.zsteven44.android.myrxjavaproject.repository.utils.CachedData;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import javax.inject.Inject;
+
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -22,44 +26,52 @@ import timber.log.Timber;
 
 import static com.zsteven44.android.myrxjavaproject.utils.AppConstants.IMGUR_API_BASE_URL;
 
-/*
-    This class is responsible for handling multiple data sources. These include any online
-    APIs and the device local storage.  It "is the single source of truth for all app
-    data", a clean api that communicates with the ViewModel.
+/**
+ * This class is responsible for consolidating/handling data from network requests,
+ * shared preferences and local db. ImgurViewModel will retrieve data from
+ * this repository.
  */
 public class ImgurRepository {
     private ImgurDatabase imgurDatabase;
     private ImgurGalleryDao galleryDao;
 
     private CompositeDisposable disposables;
+
+    @Inject public CachedData cachedData;
+
     private LiveData<List<ImgurGallery>> imgurGalleries;
 
 
-
+    /**
+     * On creation, gallery objects cached in Database will be retried and Dagger
+     * will inject an instance of CachedData and its dependencies.
+     */
     public ImgurRepository(){
         this.imgurDatabase = ImgurDatabase.getInstance(MyRxApplication.getAppContext());
         this.galleryDao = imgurDatabase.getGalleryDao();
         disposables = new CompositeDisposable();
+        AppComponent appComponent = DaggerAppComponent
+                .builder()
+                .appModule(new AppModule(MyRxApplication.getInstance()))
+                .build();
+        appComponent.injectCachedData(this);
+        Timber.d("ImgurRepository created.");
     }
 
     public String getCachedSearchTerm() {
-        CachedData cachedData = new CachedData();
         return cachedData.getCachedSearchTerm();
     }
 
     public String getCachedSearchWindow(){
-        CachedData cachedData = new CachedData();
         return cachedData.getCachedSearchWindow();
     }
     public String getCachedSearchType(){
-        CachedData cachedData = new CachedData();
         return cachedData.getCachedSearchType();
     }
 
     public void setCachedSearchParams(@NonNull final String term,
                                     @NonNull final String type,
                                     @NonNull final String window) {
-        CachedData cachedData = new CachedData();
         cachedData.setCachedSearchParams(term, type, window);
     }
 
@@ -89,7 +101,7 @@ public class ImgurRepository {
         Timber.d("finishing fetchGalleries request.");
         disposables.add(service.getSearchGallery(searchType,searchWindow,resultsPage,searchTerm)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(Schedulers.io())
                 .subscribe(new Consumer<Response<ImgurGalleryList>>() {
                     @Override
                     public void accept(@NonNull final Response<ImgurGalleryList> response) throws Exception {

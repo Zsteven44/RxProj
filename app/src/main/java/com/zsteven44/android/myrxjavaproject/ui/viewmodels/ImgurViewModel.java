@@ -13,6 +13,7 @@ import com.zsteven44.android.myrxjavaproject.repository.ImgurRepository;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
+import timber.log.Timber;
 
 public class ImgurViewModel extends AndroidViewModel {
     private CompositeDisposable disposables = new CompositeDisposable();
@@ -46,14 +47,15 @@ public class ImgurViewModel extends AndroidViewModel {
 
 
 
-    public LiveData<List<ImgurGallery>> getGalleries(String type,
-                                                     String window,
-                                                     String term,
-                                                     int page ) {
+    public LiveData<List<ImgurGallery>> getGalleries(@NonNull final String type,
+                                                     @NonNull final String window,
+                                                     @NonNull final String term,
+                                                     final int page ) {
+        Timber.d("getting Galleries for: %s", term);
         if (imgurGalleries == null) {
             imgurGalleries = new MutableLiveData<List<ImgurGallery>>();
-            imgurGalleries = imgurRepository.fetchGalleries(searchType, searchWindow, searchTerm, page);
         }
+        imgurGalleries = imgurRepository.fetchGalleries(type, window, term, page);
         return imgurGalleries;
     }
 

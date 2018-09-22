@@ -15,7 +15,14 @@
         android:text="Cat"
         android:hint="@string/search_hint"
         android:inputType="text" />
-
+    <Spinner
+        android:id="@+id/window_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Spinner
+        android:id="@+id/type_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <Button
         android:id="@+id/search_button"
         android:layout_width="wrap_content"
@@ -24,6 +31,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/recyclerView"/>
+    
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

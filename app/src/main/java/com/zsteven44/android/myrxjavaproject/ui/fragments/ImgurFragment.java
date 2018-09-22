@@ -83,6 +83,7 @@ public class ImgurFragment extends Fragment {
         //Init Observers
         initObservers();
         initValues();
+        disposables= new CompositeDisposable();
 
         // RecyclerView, Adapter, LayoutManager
         layoutManager =new GridLayoutManager(getActivity(),
@@ -128,7 +129,6 @@ public class ImgurFragment extends Fragment {
                 .subscribe();
         disposables.add(disposable);
         // RxBinding Search Button
-        disposables= new CompositeDisposable();
         disposables
                 .add(RxView
                         .clicks(searchButton)
@@ -141,11 +141,11 @@ public class ImgurFragment extends Fragment {
                                 searchWindow = SearchUtils.SearchWindow.day;
                                 searchSort = SearchUtils.SearchSort.top;
                                 searchString = searchText.getText().toString();
+                                Timber.d("Is imgurViewModel null: %s", imgurViewModel ==null);
                                 imgurViewModel.getGalleries(searchSort.name(),
                                         searchWindow.name(),
                                         searchString,
                                         1);
-                                recyclerView.scrollToPosition(0);
                             }
                         }));
 

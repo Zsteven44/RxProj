@@ -13,6 +13,7 @@ import timber.log.Timber;
 
 public class MyRxApplication extends Application {
     private static Context context;
+    private static MyRxApplication instance;
     private AppComponent appComponent;
 
     public MyRxApplication() {
@@ -21,6 +22,7 @@ public class MyRxApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        MyRxApplication.instance = this;
         MyRxApplication.context = getApplicationContext();
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
@@ -52,6 +54,10 @@ public class MyRxApplication extends Application {
 
     public static Context getAppContext() {
         return MyRxApplication.context;
+    }
+
+    public static MyRxApplication getInstance(){
+        return instance;
     }
 
 
