@@ -24,14 +24,15 @@ public class CachedData {
     }
 
     public String getCachedSearchTerm() {
-        Timber.d("is context from dagger null: %s", context == null);
-        Timber.d("is shared prefs null: %s", sharedPrefs==null);
+        Timber.d("SharedPrefs cached Search term: %s", sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, ""));
         return sharedPrefs.getString(CACHED_SEARCH_TERM_KEY, "");
     }
     public String getCachedSearchWindow(){
+        Timber.d("SharedPrefs cached Search window: %s", sharedPrefs.getString(CACHED_SEARCH_WINDOW_KEY, ""));
         return sharedPrefs.getString(CACHED_SEARCH_WINDOW_KEY, "");
     }
     public String getCachedSearchType(){
+        Timber.d("SharedPrefs cached Search type: %s", sharedPrefs.getString(CACHED_SEARCH_TYPE_KEY, ""));
         return sharedPrefs.getString(CACHED_SEARCH_TYPE_KEY, "");
     }
 

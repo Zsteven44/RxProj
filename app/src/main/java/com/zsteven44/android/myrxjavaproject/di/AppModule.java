@@ -2,6 +2,7 @@ package com.zsteven44.android.myrxjavaproject.di;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 
 import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 
@@ -24,6 +25,13 @@ public class AppModule {
     @Singleton
     public Context provideApplicationContext(){
         return application;
+    }
+
+    @Provides
+    @Singleton
+    public Resources provideResources() {
+        Timber.d("Resources from AppModule: %s", application.getResources());
+        return application.getResources();
     }
 
     @Provides

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="search_type_array">
+        <item>day</item>
+        <item>week</item>
+        <item>month</item>
+        <item>year</item>
+        <item>all</item>
+    </string-array>
+    <string-array name="search_window_array">
+        <item>time</item>
+        <item>viral</item>
+        <item>top</item>
+    </string-array>
+</resources>

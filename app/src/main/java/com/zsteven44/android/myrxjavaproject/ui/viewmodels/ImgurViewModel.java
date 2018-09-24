@@ -35,17 +35,10 @@ public class ImgurViewModel extends AndroidViewModel {
         this.searchWindow = imgurRepository.getCachedSearchWindow();
     }
 
-    public void searchGalleries() {
-
+    public void clearGalleries() {
+        imgurRepository.clearGalleries();
 
     }
-
-    /*
-    This initializes the search fields to match what was last used.  Values are saved
-    in locally using SharedPrefs and accessed via the repository.
-     */
-
-
 
     public LiveData<List<ImgurGallery>> getGalleries(@NonNull final String type,
                                                      @NonNull final String window,
@@ -55,6 +48,7 @@ public class ImgurViewModel extends AndroidViewModel {
         if (imgurGalleries == null) {
             imgurGalleries = new MutableLiveData<List<ImgurGallery>>();
         }
+        updateSearchParams(term, type, window);
         imgurGalleries = imgurRepository.fetchGalleries(type, window, term, page);
         return imgurGalleries;
     }

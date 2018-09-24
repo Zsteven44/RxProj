@@ -2,6 +2,8 @@ package com.zsteven44.android.myrxjavaproject.ui.fragments;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,20 +13,26 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.jakewharton.rxbinding2.view.RxView;
+import com.jakewharton.rxbinding2.widget.RxAdapterView;
+import com.zsteven44.android.myrxjavaproject.MyRxApplication;
 import com.zsteven44.android.myrxjavaproject.R;
 import com.zsteven44.android.myrxjavaproject.model.ImgurGallery;
 import com.zsteven44.android.myrxjavaproject.ui.adapters.ImgurAdapter;
 import com.zsteven44.android.myrxjavaproject.ui.components.ImgurPagination;
 import com.zsteven44.android.myrxjavaproject.ui.viewmodels.ImgurViewModel;
-import com.zsteven44.android.myrxjavaproject.utils.SearchUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +52,8 @@ public class ImgurFragment extends Fragment {
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
     @BindView(R.id.search_button) Button searchButton;
     @BindView(R.id.search_text) EditText searchText;
+    @BindView(R.id.type_spinner) Spinner typeSpinner;
+    @BindView(R.id.window_spinner) Spinner windowSpinner;
 
     private Unbinder unbinder;
     private CompositeDisposable disposables;
@@ -51,14 +61,16 @@ public class ImgurFragment extends Fragment {
     private ImgurViewModel imgurViewModel;
     private Observer<List<ImgurGallery>> galleryListObserver;
 
+    @Inject public Resources resources;
+
     private ImgurAdapter<ImgurGallery> adapter;
     private GridLayoutManager layoutManager;
 
     private PublishProcessor<Integer> pagination;
     private ImgurPagination imgurPagination;
 
-    private SearchUtils.SearchSort searchSort;
-    private SearchUtils.SearchWindow searchWindow;
+    private int searchType;
+    private int searchWindow;
     private String searchString;
 
 
@@ -77,15 +89,29 @@ public class ImgurFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        ((MyRxApplication) context.getApplicationContext()).getAppComponent().inject(this);
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public void onViewCreated(@NonNull final View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //Init Observers
-        initObservers();
-        initValues();
+        /*
+         * Init widgets, observers, view selections
+         */
         disposables= new CompositeDisposable();
-
-        // RecyclerView, Adapter, LayoutManager
+        initSpinners();
+        initObservers();
+        /*
+         * RecyclerView, Adapter, LayoutManager setup
+         */
         layoutManager =new GridLayoutManager(getActivity(),
                 2,
                 GridLayoutManager.VERTICAL,
@@ -98,7 +124,9 @@ public class ImgurFragment extends Fragment {
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         recyclerView.setAdapter(adapter);
-        // ScrollListener
+        /*
+         * ScrollListener / Pagination
+         */
         pagination = PublishProcessor.create();
         imgurPagination = new ImgurPagination(layoutManager) {
             @Override
@@ -115,8 +143,8 @@ public class ImgurFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(integer -> {
                     Timber.d("doOnNext pagination triggered.");
-                    imgurViewModel.getGalleries(searchSort.name(),
-                            searchWindow.name(),
+                    imgurViewModel.getGalleries(resources.getStringArray(R.array.search_type_array)[searchType],
+                            resources.getStringArray(R.array.search_window_array)[searchWindow],
                             searchString,
                             integer);
                 })
@@ -128,7 +156,9 @@ public class ImgurFragment extends Fragment {
                 })
                 .subscribe();
         disposables.add(disposable);
-        // RxBinding Search Button
+        /*
+         * RxBinding Search Button
+         */
         disposables
                 .add(RxView
                         .clicks(searchButton)
@@ -138,12 +168,11 @@ public class ImgurFragment extends Fragment {
                             public void accept(Object aVoid) throws Exception {
                                 Timber.d("SearchButton 'RxView.clicks registered.");
                                 imgurPagination.setCurrentPage(1);
-                                searchWindow = SearchUtils.SearchWindow.day;
-                                searchSort = SearchUtils.SearchSort.top;
                                 searchString = searchText.getText().toString();
-                                Timber.d("Is imgurViewModel null: %s", imgurViewModel ==null);
-                                imgurViewModel.getGalleries(searchSort.name(),
-                                        searchWindow.name(),
+                                imgurViewModel.clearGalleries();
+
+                                imgurViewModel.getGalleries(resources.getStringArray(R.array.search_type_array)[searchType],
+                                        resources.getStringArray(R.array.search_window_array)[searchWindow],
                                         searchString,
                                         1);
                             }
@@ -153,6 +182,49 @@ public class ImgurFragment extends Fragment {
 
     }
 
+    private void initSpinners() {
+        this.searchText.setText(imgurViewModel.getSearchTerm());
+        // window spinner adapter
+        ArrayAdapter<CharSequence> windowAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.search_window_array, android.R.layout.simple_spinner_item);
+        windowAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        windowSpinner.setAdapter(windowAdapter);
+        // type spinner adapter
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.search_type_array, android.R.layout.simple_spinner_item);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+        Timber.d("Resources value is: %s", resources);
+        searchWindow = Arrays.asList(resources.getStringArray(R.array.search_window_array)).indexOf(imgurViewModel.getSearchWindow());
+        searchType = Arrays.asList(resources.getStringArray(R.array.search_type_array)).indexOf(imgurViewModel.getSearchType());
+        typeSpinner.setSelection(searchType);
+        windowSpinner.setSelection(searchWindow);
+        // Set spinner item select listeners
+        disposables.add(RxAdapterView.itemSelections(windowSpinner)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) throws Exception {
+                        searchWindow = integer;
+
+                        Timber.d("WindowSpinner selection changed to: %s", integer);
+                    }
+                }));
+        disposables.add(RxAdapterView.itemSelections(typeSpinner)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) throws Exception {
+                        searchType = integer;
+
+                        Timber.d("TypeSpinner selection changed to: %s", integer);
+                    }
+                }));
+
+        // initialize spinner values
+
+
+    }
 
     private void initObservers() {
         imgurViewModel
@@ -167,11 +239,6 @@ public class ImgurFragment extends Fragment {
                 adapter.addItemList(imgurGalleries != null ? imgurGalleries : new ArrayList<ImgurGallery>());
             }
         });
-    }
-
-    private void initValues() {
-        this.searchText.setText(imgurViewModel.getSearchTerm());
-        // TODO add searchWindow and searchType init fields.
     }
 
     @Override
