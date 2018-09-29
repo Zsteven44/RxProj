@@ -19,6 +19,13 @@ RxJava2 (RxAndroid and RxBinding)
     - Observables are added to CompositeDisposable object for easy garbage cleanup
     when fragment is destroyed.
 
+LiveData
+    - Sync ViewModel fields to Room table values.
+    - Links views to ViewModel fields for updating data.
+
+ViewModel
+    - Retrieves data from repository to be observed by the view.
+
 Gson (Retrofit-GsonConverter)
     - GsonConverter added to Retrofit client to map response body JSON to typed
     object models.
