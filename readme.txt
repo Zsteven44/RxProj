@@ -35,7 +35,7 @@ Butterknife
     - Binds layout views to their respective Activities, Fragments and Viewholders,
     for cleaner code.
 
-Picasso
+Glide
     - Handles image bitmap rendering asynchronously.
 
 
