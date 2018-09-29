@@ -194,9 +194,12 @@ public class ImgurFragment extends Fragment {
                 R.array.search_type_array, android.R.layout.simple_spinner_item);
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(typeAdapter);
-        Timber.d("Resources value is: %s", resources);
+        Timber.d("ImgurFragment SearchType is: %s", searchType);
+        Timber.d("ImgurFragment SearchWindow is: %s", searchWindow);
         searchWindow = Arrays.asList(resources.getStringArray(R.array.search_window_array)).indexOf(imgurViewModel.getSearchWindow());
         searchType = Arrays.asList(resources.getStringArray(R.array.search_type_array)).indexOf(imgurViewModel.getSearchType());
+        Timber.d("ImgurFragment new SearchType is: %s", searchType);
+        Timber.d("ImgurFragment new SearchWindow is: %s", searchWindow);
         typeSpinner.setSelection(searchType);
         windowSpinner.setSelection(searchWindow);
         // Set spinner item select listeners
@@ -206,7 +209,6 @@ public class ImgurFragment extends Fragment {
                     @Override
                     public void accept(Integer integer) throws Exception {
                         searchWindow = integer;
-
                         Timber.d("WindowSpinner selection changed to: %s", integer);
                     }
                 }));

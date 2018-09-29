@@ -119,7 +119,8 @@ public class ImgurRepository {
                 }));
     }
 
-    public void clearGalleries() {
+    public void
+    clearGalleries() {
         galleryDao.deleteAll();
     }
 

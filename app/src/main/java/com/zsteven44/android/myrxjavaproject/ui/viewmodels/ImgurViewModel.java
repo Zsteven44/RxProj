@@ -33,6 +33,9 @@ public class ImgurViewModel extends AndroidViewModel {
         this.searchTerm = imgurRepository.getCachedSearchTerm();
         this.searchType = imgurRepository.getCachedSearchType();
         this.searchWindow = imgurRepository.getCachedSearchWindow();
+        Timber.d("ViewModel SearchType is: %s", searchType);
+        Timber.d("ViewModel SearchWindow is: %s", searchWindow);
+        Timber.d("ViewModel SearchTerm is: %s", searchTerm);
     }
 
     public void clearGalleries() {
